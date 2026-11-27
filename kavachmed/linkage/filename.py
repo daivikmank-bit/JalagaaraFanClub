@@ -307,11 +307,12 @@ def apply_filename_attribution(
     owners: dict[str, tuple[tuple[int, str, str] | None, tuple[RecKey, ...], bool]] = {}
     for idx, cl in enumerate(base_clusters):
         oid = f"c:{idx}"
-        owners[oid] = (cl.canonical_key, cl.members, True)
         clustered_rks.update(cl.members)
+        if strict_result.fuzzy_ineligible.isdisjoint(cl.members):
+            owners[oid] = (cl.canonical_key, cl.members, True)
 
     for ev in evidences:
-        if ev.key in clustered_rks:
+        if ev.key in clustered_rks or ev.key in strict_result.fuzzy_ineligible:
             continue
         # Only body records not themselves relying on unresolved filename attachment
         # or having actual body-derived identifying evidence can serve as owners.
@@ -352,6 +353,8 @@ def apply_filename_attribution(
     candidate_records: list[tuple[RecKey, str]] = []
 
     for rk in sorted(attached):
+        if rk in strict_result.fuzzy_ineligible:
+            continue
         if rk in clustered_rks:
             _bump(diagnostics, "filename_preserved_existing_cluster")
             continue

@@ -103,15 +103,28 @@ class TestStrictLinkage(unittest.TestCase):
         self.assertEqual(diag["contested_bridges"], 1)
         self.assertEqual(diag["cross_bucket_veto_abstentions"], 1)
 
-        # Over-budget bucket abstains safely.
+        # Exact groups may exceed the fuzzy pair budget, but not the component cap.
         over_diag: dict[str, int] = {}
         many = [
             Evidence(key=(f"f{i}.txt", "doc"), ids={"aadhaar": ["999988887777"]})
-            for i in range(6)
+            for i in range(80)
         ]
-        over_res = build_strict_clusters(many, policy={"max_pair_checks": 5}, diagnostics=over_diag)
+        large = build_strict_clusters(many, policy={"max_pair_checks": 5})
+        self.assertEqual(len(large.clusters[0].members), 80)
+        over_res = build_strict_clusters(many, policy={"max_component_size": 79}, diagnostics=over_diag)
         self.assertEqual(over_res.clusters, ())
         self.assertEqual(over_diag["over_budget_abstentions"], 1)
+        self.assertEqual(over_res.fuzzy_ineligible, {ev.key for ev in many})
+
+        for attr, left, right in (("sex", "M", "F"), ("birth_years", (1980, 1981), (1990, 1992))):
+            with self.subTest(attr=attr):
+                setattr(many[0], attr, left)
+                setattr(many[-1], attr, right)
+                vetoed = build_strict_clusters(many, policy={"max_pair_checks": 5})
+                self.assertFalse(vetoed.clusters)
+                self.assertEqual(vetoed.fuzzy_ineligible, over_res.fuzzy_ineligible)
+                setattr(many[0], attr, None)
+                setattr(many[-1], attr, None)
 
     def test_shared_phone_never_bridges_or_vetoes_and_never_mutates(self) -> None:
         p1 = Evidence(

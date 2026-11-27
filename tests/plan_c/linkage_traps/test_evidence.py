@@ -173,7 +173,7 @@ class TestEvidenceExtraction(unittest.TestCase):
             Span(rec.key, 8, 0, 11, "ADM_KEY", "patient", 1.0, "ids"),
         ]
         ev = extract(rec, spans)
-        self.assertEqual(ev.ids["uhid:tst"], ["000123"])
+        self.assertEqual(ev.ids["uhid:tst"], ["/26/000123"])
         self.assertEqual(ev.ids["aadhaar"], ["123456789012"])
         self.assertEqual(ev.ids["pan"], ["ABCDE1234F"])
         self.assertEqual(ev.phones, ["9876543210"])
@@ -229,7 +229,7 @@ class TestEvidenceExtraction(unittest.TestCase):
         )
         self.assertEqual(ev_extra.ids["abha"], ["12345678901234"])
         self.assertEqual(ev_extra.ids["ins:snj"], ["POL9988"])
-        self.assertEqual(ev_extra.ids["uhid:oth"], ["000999"])
+        self.assertNotIn("uhid:oth", ev_extra.ids)
         self.assertNotEqual(ev_extra.adm_key, ev.adm_key)
         self.assertEqual(ev_extra.adm_key, "snj:adm-2026-01")
         self.assertEqual(diag["issuer_mismatches"], 1)
@@ -390,7 +390,7 @@ class TestEvidenceExtraction(unittest.TestCase):
             self.assertEqual(report.passing_records, 1)
             self.assertEqual(report.missing_oracle_units, 1)
             self.assertEqual(report.target_status, "pass")
-            self.assertEqual(evidences[0].ids["uhid:snj"], ["019672"])
+            self.assertEqual(evidences[0].ids["uhid:snj"], ["/26/019672"])
             self.assertEqual(evidences[0].phones, ["7731945103"])
             self.assertEqual(evidences[0].birth_years, (1976, 1977))
 

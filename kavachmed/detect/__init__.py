@@ -39,7 +39,12 @@ def build_context(policy: dict[str, Any], keys: Any = None, config_dir: Path | N
     for key in ("drugs", "symptoms"):
         for entry in lexicons[key]:
             clinical.update(w for w in entry.replace("-", " ").split() if len(w) > 1)
-    lexicons["safe_words"] = (set(lexicons["safe_words"]) | clinical) - names_all
+    lexicons["safe_words"] = (
+        set(lexicons["safe_words"])
+        | _load_gz_words(lex_root / "safe" / "safe_words.txt.gz")
+        | clinical
+        | {"penicillamine", "rdt", "rule", "hand", "control", "sop", "isolate", "escalate", "routine", "forwarded", "helpline"}
+    ) - names_all
     lexicons["names"] = names_all
     return Context(policy=policy, lexicons=lexicons, keys=keys)
 

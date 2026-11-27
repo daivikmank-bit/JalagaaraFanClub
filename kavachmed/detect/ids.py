@@ -7,6 +7,7 @@ import re
 from typing import Iterable
 
 from kavachmed.contracts import Context, Record, Span
+from kavachmed.local_ids import LABELED_LOCAL, parse_local_id, patient_id_header
 
 _DEVA_DIGITS = str.maketrans("०१२३४५६७८९", "0123456789")
 
@@ -53,15 +54,15 @@ _RE_POS_IP_CTX = re.compile(r"\b(?:ip|ip\s+address|ipv4|ipv6)\s*[:#-]?\s*$", re.
 _RE_FREQ_DOSE = re.compile(r"\b[0-3]-[0-3]-[0-3](?:-[0-3])?\b")
 
 # FR-D1 patterns
-_RE_AADHAAR_VID = re.compile(r"(?<![0-9A-Za-z])(\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}|\d{16})(?![0-9A-Za-z])")
-_RE_AADHAAR = re.compile(r"(?<![0-9A-Za-z])([2-9]\d{3}[- ]?\d{4}[- ]?\d{4})(?![0-9A-Za-z])")
-_RE_AADHAAR_MASKED = re.compile(r"(?<![0-9A-Za-z])([Xx*]{4}[- ]?[Xx*]{4}[- ]?\d{4})(?![0-9A-Za-z])")
-_RE_ABHA_NUM = re.compile(r"(?<![0-9A-Za-z])(91[- ]?\d{4}[- ]?\d{4}[- ]?\d{4})(?![0-9A-Za-z])")
+_RE_AADHAAR_VID = re.compile(r"(?<![0-9A-Za-z])(\d{4}[- .]?\d{4}[- .]?\d{4}[- .]?\d{4}|\d{16})(?![0-9A-Za-z])")
+_RE_AADHAAR = re.compile(r"(?<![0-9A-Za-z])([2-9]\d{3}[- .]?\d{4}[- .]?\d{4})(?![0-9A-Za-z])")
+_RE_AADHAAR_MASKED = re.compile(r"(?<![0-9A-Za-z])([Xx*]{4}[- .]?[Xx*]{4}[- .]?\d{4})(?![0-9A-Za-z])")
+_RE_ABHA_NUM = re.compile(r"(?<![0-9A-Za-z])(91[- .]?\d{4}[- .]?\d{4}[- .]?\d{4})(?![0-9A-Za-z])")
 _RE_ABHA_ADDR = re.compile(r"(?<![0-9A-Za-z])([A-Za-z0-9._-]{3,}@(?:abdm|sbx))(?![0-9A-Za-z])")
 _RE_PAN = re.compile(r"\b([A-Z]{5}\d{4}[A-Z])\b")
 _RE_EMAIL = re.compile(r"\b([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\b")
 _RE_PHONE = re.compile(
-    r"(?<![0-9A-Za-z])((?:\+91[- ]?|0)?[6-9]\d{4}[- ]?\d{5}|(?:\+91[- ]?|0)?[6-9]\d{2}[- ]?\d{3}[- ]?\d{4})(?![0-9A-Za-z])"
+    r"(?<![0-9A-Za-z])((?:\+?91[- ]?|0091[- ]?|0)?(?:\(\d{3}\)[- ]?\d{3}[- ]?\d{4}|[6-9]\d{4}[- ]?\d{5}|[6-9]\d{2}[- ]?\d{3}[- ]?\d{4}|[6-9]\d[- ]?\d{4}[- ]?\d{4}))(?![0-9A-Za-z])"
 )
 _RE_PHONE_MASKED = re.compile(
     r"(?<![0-9A-Za-z*])((?:\+91[ -]?|0)?[0-9Xx*](?:[ -]?[0-9Xx*]){9})(?![0-9A-Za-z*])"
@@ -141,11 +142,19 @@ def detect_ids(rec: Record, ctx: Context) -> list[Span]:
             continue
         raw = fld.text
         norm = raw.translate(_DEVA_DIGITS)
-        coltype = ctx.coltypes.get(fld.path) or rec.meta.get("coltypes", {}).get(fld.path)
+        coltype = (rec.meta.get("coltypes_by_idx", {}).get(fld.idx)
+                   or ctx.coltypes.get(fld.path) or rec.meta.get("coltypes", {}).get(fld.path))
 
         # Column-typed fast path for structured ID columns (e.g. uhid=412345)
-        if coltype == "id" and norm.strip() and re.fullmatch(r"[A-Za-z0-9/-]{4,24}", norm.strip()) and any(c.isdigit() for c in norm):
+        if ((coltype == "id" or patient_id_header(fld.path) or fld.idx in rec.meta.get("patient_id_fields", ()))
+            and (parse_local_id(raw) or (
+                coltype == "id" and re.fullmatch(r"[A-Za-z0-9/-]{4,24}", norm.strip())
+                and any(c.isdigit() for c in norm)
+            ))):
             _emit(spans, rec, fld.idx, 0, len(raw), "MRN", 0.95)
+
+        for m in LABELED_LOCAL.finditer(norm):
+            _emit(spans, rec, fld.idx, *m.span("value"), "MRN", 0.95)
 
         # Track 16-digit VIDs so 12-digit Aadhaar regex doesn't double-match inside them
         vid_ranges: list[tuple[int, int]] = []

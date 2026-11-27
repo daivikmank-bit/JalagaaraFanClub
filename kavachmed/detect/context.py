@@ -50,14 +50,16 @@ _RE_SURNAME_FIRST = re.compile(r"\b([A-Z][a-z]{2,},[ \t]*[A-Z][a-z]{2,})\b")
 
 _CLINICAL_CHAT_PREFIXES = {
     "name", "pt", "pt name", "pt. name", "patient", "patient name", "full name",
+    "kin", "address", "admitted", "discharged", "diagnosis", "labs", "lab", "ref", "uhid", "mrn", "ipd", "opd",
     "bp", "temp", "pulse", "spo2", "ward", "bed", "date", "time", "note", "notes", "rx", "dx",
-    "नाम", "पता", "उम्र", "आयु", "मरीज का नाम",
+    "dob", "age", "sex", "gender", "phone", "mobile", "aadhaar",
+    "नाम", "पता", "उम्र", "आयु", "मरीज का नाम", "शिकायत", "दवा", "पंजीकरण सं.", "मोबाइल",
 }
 # Address/record-structure words that make "X, Y" an address or label list, not "Surname, First".
 _NOT_NAME_WORDS = {
-    "near", "opp", "behind", "distt", "dist", "district", "tehsil", "taluka", "block", "village",
-    "vill", "gram", "post", "mohalla", "colony", "nagar", "ward", "road", "lane", "gali", "marg",
-    "basti", "sector", "city", "state", "pin", "patient", "name", "age", "sex", "male", "female",
+    "near", "opp", "behind", "distt", "dist", "district", "tehsil", "taluka", "tal", "mandal",
+    "village", "vill", "gram", "post", "mohalla", "colony", "nagar", "ward", "road", "lane", "gali", "marg",
+    "basti", "sector", "city", "state", "pin", "landmark", "patient", "name", "age", "sex", "male", "female",
 }
 _COMPLAINT_WORDS = {"fever", "cough", "cold", "pain", "headache", "vomiting", "diarrhea", "weakness", "bukhar", "dard"}
 _KINSHIP_HONORIFICS = {"bhaiya", "didi", "ji", "sahab", "भैया", "दीदी", "जी", "साहब"}

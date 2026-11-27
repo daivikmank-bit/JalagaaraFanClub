@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 import time
 from collections import Counter
 from dataclasses import dataclass, field
@@ -21,6 +23,7 @@ from kavachmed import (
     privacy,
     propagate,
     rename,
+    release,
     residual_a,
     residual_b,
     shield,
@@ -41,6 +44,8 @@ PARSE_REASON: dict[str, str] = {
     "E_EMPTY": "empty_file",
     "E_UNSUPPORTED": "unsupported_format",
     "E_IO": "validation_failed",
+    "E_ATTACHMENT": "unverified_attachment",
+    "E_FIELD_TYPE": "unsupported_sensitive_field",
 }
 
 _INTERNAL_LOC_PREFIXES = ("@",)
@@ -188,6 +193,7 @@ def run(input_dir: Path, output_dir: Path, keys: Keys, policy: dict[str, Any]) -
     file_metas: list[_FileMeta] = []
     light_pfs: list[ParsedFile] = []
     quarantined_map: dict[str, dict[str, Any]] = {}
+    diagnostics = {}
     evidences: list[Evidence] = []
     all_spans_flat: list[Span] = []
     all_filename_signals: list[FilenameSignal] = []
@@ -211,6 +217,8 @@ def run(input_dir: Path, output_dir: Path, keys: Keys, policy: dict[str, Any]) -
         _tp = time.monotonic()
         try:
             pf = adapters.parse(entry, policy)
+            for r in pf.records:
+                release.field_policy(r)
             ctx.coltypes = col_typing.type_columns(pf)
         except StageError as exc:
             t_stage["parse"] += time.monotonic() - _tp
@@ -258,7 +266,8 @@ def run(input_dir: Path, output_dir: Path, keys: Keys, policy: dict[str, Any]) -
             extra["record_qi"] = {
                 r.key[1]: priv_spans.record_summary(r) for r in pf.records if priv_spans.summarizable(r.key[1])
             }
-        for rec in pf.records:
+        for original in pf.records:
+            rec, policy_edits = release.field_policy(original)
             sh_spans = shield.protect(rec, ctx)
             det_spans = detect.detect(rec, ctx, sh_spans)
             all_spans = sh_spans + det_spans
@@ -266,7 +275,9 @@ def run(input_dir: Path, output_dir: Path, keys: Keys, policy: dict[str, Any]) -
                 all_spans += priv_spans.privacy_spans(rec, policy, extra["date_order"])
             all_spans_flat.extend(all_spans)
             if _is_public_loc(rec.key[1]):
-                evidences.append(evidence.extract(rec, all_spans))
+                excluded = {f.idx for f in rec.fields if f.vtype == "b64"}
+                usable = [sp for sp in all_spans if sp.field_idx not in excluded]
+                evidences.append(Evidence(key=rec.key) if rec.meta.get("multi_patient") else evidence.extract(rec, usable, diagnostics=diagnostics))
         t_stage["detect"] += time.monotonic() - _td
 
         file_metas.append(
@@ -295,10 +306,12 @@ def run(input_dir: Path, output_dir: Path, keys: Keys, policy: dict[str, Any]) -
 
     _ts = time.monotonic()
     file_digests = {m.rel_path: m.sha256 for m in file_metas}
+    evidence.scope_local_ids(evidences, diagnostics=diagnostics)
     resolution = linkage.resolve(
         evidences,
         keys,
         policy,
+        diagnostics=diagnostics,
         file_digests=file_digests,
         filename_signals=all_filename_signals if all_filename_signals else None,
     )
@@ -333,7 +346,7 @@ def run(input_dir: Path, output_dir: Path, keys: Keys, policy: dict[str, Any]) -
 
     # Pass 2: stream one file at a time, verify digest, project, gate, and release buffers.
     for meta in file_metas:
-        entry = inventory.read_entry(meta.abs_path, meta.rel_path)
+        entry = inventory.read_entry(meta.abs_path, meta.rel_path, input_dir)
         if entry.sha256 != meta.sha256 or entry.quarantine_reason is not None:
             raise StageError("inventory", "E_IO")
 
@@ -350,7 +363,10 @@ def run(input_dir: Path, output_dir: Path, keys: Keys, policy: dict[str, Any]) -
         all_file_spans: list[Span] = []
         _tp = time.monotonic()
         date_order = meta.extra.get("date_order", "dmy")
-        for rec in pf.records:
+        privileged = []
+        for original in pf.records:
+            rec, policy_edits = release.field_policy(original)
+            privileged.extend(policy_edits)
             sh_spans = shield.protect(rec, ctx)
             det_spans = detect.detect(rec, ctx, sh_spans)
             if pf.fmt != "fhir":
@@ -361,10 +377,25 @@ def run(input_dir: Path, output_dir: Path, keys: Keys, policy: dict[str, Any]) -
         t_stage["propagate"] += time.monotonic() - _tp
 
         # Reference-document byte-copy path (A11)
-        if ref_byte_copy and _is_reference_candidate(pf, all_file_spans, pf.rel_path, mapped_rel):
+        def publish(*args, **kwargs):
+            with tempfile.TemporaryDirectory(dir=output_dir) as tmp:
+                staged = Path(tmp) / "candidate"
+                ok, data, loc, counts = gate.run_with_repair(staged, *args, **kwargs)
+                if ok and data is not None:
+                    try:
+                        ok = release.verify(data, rel_out, pf.fmt, kwargs["encoding"], policy, leak_keys)
+                        if ok:
+                            if any(p.is_symlink() or getattr(p, "is_junction", lambda: False)() for p in (dest, *dest.parents)) or san_dir.resolve() not in dest.resolve().parents:
+                                raise StageError("emit", "E_IO")
+                            dest.parent.mkdir(parents=True, exist_ok=True)
+                            os.replace(staged, dest)
+                    except Exception:
+                        ok = False
+                return ok, data if ok else None, loc, counts
+
+        if not privileged and ref_byte_copy and _is_reference_candidate(pf, all_file_spans, pf.rel_path, mapped_rel):
             _tg = time.monotonic()
-            ref_ok, _, _, ref_counts = gate.run_with_repair(
-                dest,
+            ref_ok, _, _, ref_counts = publish(
                 pf.raw_bytes,
                 rel_out,
                 LocMap([]),
@@ -415,6 +446,14 @@ def run(input_dir: Path, output_dir: Path, keys: Keys, policy: dict[str, Any]) -
                     )
                 )
             base_edits.extend(rename.rename_headers_and_keys(pf, all_file_spans))
+            if privileged:
+                ranges = {}
+                for edit in privileged:
+                    ranges.setdefault((edit.key, edit.field_idx), []).append(edit)
+                def overlaps(item):
+                    return any(item.start < ed.end and ed.start < item.end for ed in ranges.get((item.key, item.field_idx), ()))
+                base_edits = [ed for ed in base_edits if not overlaps(ed)] + privileged
+                protected_file_spans = [sp for sp in protected_file_spans if not overlaps(sp)]
             assert pf.projector is not None
             records_by_key = {r.key: r for r in pf.records}
             if pf.fmt == "fhir" and "fhir_ctx" in pf.extra:
@@ -462,8 +501,7 @@ def run(input_dir: Path, output_dir: Path, keys: Keys, policy: dict[str, Any]) -
             continue
 
         _tg2 = time.monotonic()
-        ok, final_bytes, _final_loc, g_counts = gate.run_with_repair(
-            dest,
+        ok, final_bytes, _final_loc, g_counts = publish(
             out_bytes,
             rel_out,
             loc_map,
@@ -539,6 +577,7 @@ def run(input_dir: Path, output_dir: Path, keys: Keys, policy: dict[str, Any]) -
     )
 
     n_san = sum(1 for f in file_reports if f["status"] == "sanitized")
+    log_counts(log_dir, "linkage", **diagnostics)
     log_counts(log_dir, "gate", **dict(gate_totals))
     log_counts(
         log_dir,

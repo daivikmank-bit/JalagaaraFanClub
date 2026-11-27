@@ -103,7 +103,7 @@ class TestFilenameEvidence(unittest.TestCase):
 
         self.assertIn(("reports/r1.txt", "0"), attached)
         r1 = attached[("reports/r1.txt", "0")]
-        self.assertEqual(r1.ids, (("uhid:aiims", "0042"),))
+        self.assertEqual(r1.ids, (("uhid:aiims", "/2024/0042"),))
         self.assertEqual(r1.phones, ("9876543210",))
         self.assertEqual(r1.source, "filename_a9")
 

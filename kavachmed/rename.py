@@ -5,6 +5,7 @@ import re
 from collections import Counter, defaultdict
 from pathlib import PurePosixPath
 
+from kavachmed.local_ids import contains_local_id
 from kavachmed.contracts import Edit, ParsedFile, Resolution, Span
 from kavachmed.security import Keys
 
@@ -49,6 +50,8 @@ def extract_filename_signals(rel_path: str) -> dict[str, list[str]]:
 
 
 def _is_sensitive_component(comp: str, df_counts: Counter[str], is_stem: bool = False) -> bool:
+    if contains_local_id(comp):
+        return True
     tokens = tokenize_component(comp)
     for tok in tokens:
         if _DIGIT_CORE_RE.search(tok):

@@ -66,7 +66,7 @@ _SAFE_ABBR = {
     "IPD", "IST", "IU", "IV", "JSON", "KCO", "LDL", "LFT", "LOINC", "MCG",
     "MD", "MG", "ML", "MMHG", "MRI", "MRN", "NA", "NLEM", "NO", "OD", "OK",
     "OPD", "OR", "OT", "PAN", "PIN", "PM", "PMJAY", "PO", "PPBS", "PRN", "PSN",
-    "QID", "RBC", "RBS", "RFT", "RNA", "RS", "SOS", "SPO2", "STAT", "SYP",
+    "QID", "RBC", "RBS", "RDT", "RFT", "RNA", "RS", "SOP", "SOS", "SPO2", "STAT", "SYP",
     "SYR", "TAB", "TB", "TDS", "TSH", "TSV", "TXT", "UHID", "URI", "URN",
     "URTI", "UTC", "UTF", "UTI", "UUID", "WBC", "WHO", "XHTML", "XML", "XRAY",
     "ASHA",
@@ -79,7 +79,7 @@ _PSN_OR_ID_INLINE_RE = re.compile(r"\b(?:PSN|ID|TEL)-[0-9A-HJKMNP-TV-Z]{6,10}\b"
 _SAFE_MEDICAL_EPONYMS_RE = re.compile(
     r"\b(?:bell'?s\s+palsy|addison'?s\s+disease|hodgkin'?s?\s+lymphoma|parkinson'?s\s+disease|"
     r"alzheimer'?s\s+disease|cushing'?s\s+syndrome|crohn'?s\s+disease|graves'?\s+disease|"
-    r"wilson'?s\s+disease|paget'?s\s+disease)\b",
+    r"wilson'?s\s+disease|paget'?s\s+disease|koch'?s\s+(?:cases|bacillus|disease))\b",
     re.I,
 )
 
@@ -212,6 +212,7 @@ class _StaticLexicons:
                 for line in fp.read_text(encoding="utf-8").splitlines():
                     if line.strip() and not line.startswith("#"):
                         clinical.update(w.casefold() for w in line.replace("-", " ").split() if len(w) > 1)
+        clinical.update({"penicillamine", "rule", "hand", "control", "sop", "isolate", "escalate", "routine", "forwarded", "helpline"})
         self.safe_words |= clinical - self.names
 
         st_p = base / "places" / "lgd_states.tsv"
