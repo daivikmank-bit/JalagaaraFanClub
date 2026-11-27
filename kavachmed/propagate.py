@@ -144,17 +144,19 @@ def sweep(
                 pos = end
 
         # 3. Cluster-scoped name 1-3-gram sweeps (protected spans skipped)
-        tok_matches = list(_RE_TOKEN.finditer(text))
-        for n in (3, 2, 1):
-            for i in range(len(tok_matches) - n + 1):
-                window = tok_matches[i : i + n]
-                s, e = window[0].start(), window[-1].end()
-                if _overlaps_protected(fld.idx, s, e, prot):
-                    continue
-                if _overlaps_any(fld.idx, s, e, existing + added):
-                    continue
-                gram = tuple(m.group().lower() for m in window)
-                if _tok_hash(gram) in name_hashes:
+        if name_hashes:
+            tok_matches = list(_RE_TOKEN.finditer(text))
+            for n in (3, 2, 1):
+                for i in range(len(tok_matches) - n + 1):
+                    window = tok_matches[i : i + n]
+                    gram = tuple(m.group().lower() for m in window)
+                    if _tok_hash(gram) not in name_hashes:
+                        continue
+                    s, e = window[0].start(), window[-1].end()
+                    if _overlaps_protected(fld.idx, s, e, prot):
+                        continue
+                    if _overlaps_any(fld.idx, s, e, existing + added):
+                        continue
                     added.append(Span(rec.key, fld.idx, s, e, "PATIENT_NAME", "unknown", 0.80, "propagate"))
 
     combined = existing + added

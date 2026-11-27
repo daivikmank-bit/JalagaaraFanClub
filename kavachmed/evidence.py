@@ -8,10 +8,13 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Any, Callable, Protocol
+from urllib.parse import quote
 
 from kavachmed.indic import NameToken, normalize_name
+from kavachmed.local_ids import GENERIC_PREFIXES, LocalID, parse_local_id, patient_id_header
 
 try:
     from kavachmed.contracts import Field, RecKey, Record, Span
@@ -45,6 +48,15 @@ except ImportError:  # pragma: no cover - fallback before Plan A scaffolds contr
         exempt_kind: str | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class LocalObservation:
+    local: LocalID
+    value: str
+    namespace: str | None
+    patient_field: bool
+    name: str
+
+
 @dataclass
 class Evidence:
     """Normalized record-scoped linkage evidence (FR-L1)."""
@@ -62,6 +74,7 @@ class Evidence:
     hospital: str | None = None
     adm_key: str | None = None
     dates: list[str] = field(default_factory=list)
+    local_observations: list[LocalObservation] = field(default_factory=list, repr=False)
 
 
 class DateProvider(Protocol):
@@ -150,8 +163,11 @@ _EXCLUDED_NAME_ROLES = {"doctor", "sender", "third_party", "none"}
 
 # Structured ID patterns
 _SLASH_ID_RE = re.compile(r"^([A-Za-z]{2,8})[/-](\d{2,4})[/-]([A-Za-z0-9]{3,16})$")
-_PREFIXED_ID_RE = re.compile(r"^([A-Za-z]{2,8})(\d{2,4})?[-/]?(\d{4,12})$")
-_GENERIC_ID_PREFIXES = frozenset({"uhid", "mrn", "id", "regno", "reg", "crno", "cr", "no", "pid"})
+_PATIENT_LABEL = re.compile(
+    r"(?:\b(?:mrn|uhid|patient\s*(?:id|no)|ref\.?\s*(?:no\.?)?|reg\.?\s*(?:no\.?)?)|पंजीकरण\s*(?:सं\.?|संख्या)?)\s*[:#-.]?\s*$",
+    re.I,
+)
+_OTHER_ENTITY = re.compile(r"(?:claim|order|device|specimen|sample|accession|encounter|invoice|test|attachment|export|metadata|payer|physician|provider|practitioner)", re.I)
 _PAN_RE = re.compile(r"^[A-Z]{5}\d{4}[A-Z]$")
 _ISO_DATE_RE = re.compile(r"^(\d{4})-(\d{2})-(\d{2})$")
 _DMY_DATE_RE = re.compile(r"^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$")
@@ -267,31 +283,17 @@ def _normalize_typed_id(
         return None, None
 
     if t in {"MRN", "UHID"}:
-        compact = re.sub(r"\s+", "", folded)
-        m = _SLASH_ID_RE.match(compact)
-        if m:
-            issuer, _yr, core = m.group(1).casefold(), m.group(2), m.group(3).casefold()
-            return f"uhid:{issuer}", core
-        # Issuer-prefixed local IDs (JJH-0966021, DHH2026-071345, UHID-009559): the letter
-        # prefix names the issuing system. Generic prefixes (UHID/MRN/ID) only bridge with a
-        # long core, so short local serials from different hospitals cannot collide.
-        m2 = _PREFIXED_ID_RE.match(compact)
-        if m2:
-            prefix, core = m2.group(1).casefold(), m2.group(3).casefold()
-            if prefix not in _GENERIC_ID_PREFIXES:
-                return f"uhid:{prefix}", core
-            if hospital_hint:
-                issuer = re.sub(r"[^a-z0-9]", "", hospital_hint.casefold())
-                if issuer:
-                    return f"uhid:{issuer}", core
-            if len(core) >= 6:
-                return f"uhid:{prefix}", core
-        # Local unscoped MRN requires a confirmed hospital issuer to bridge.
-        if hospital_hint:
-            issuer = re.sub(r"[^a-z0-9]", "", hospital_hint.casefold())
-            core = re.sub(r"[^a-z0-9]", "", compact.casefold())
-            if issuer and core:
-                return f"uhid:{issuer}", core
+        if not hospital_hint:
+            return None, None
+        issuer = hospital_hint.strip().casefold()
+        if not issuer or issuer in GENERIC_PREFIXES:
+            return None, None
+        namespace = "uhid:" + quote(issuer, safe="")
+        local = parse_local_id(folded)
+        if local and (local.prefix == issuer or local.prefix in GENERIC_PREFIXES):
+            return namespace, local.core
+        if re.fullmatch(r"[0-9]{3,16}", folded):
+            return namespace, folded
         return None, None
 
     if t == "INSURANCE_ID":
@@ -340,6 +342,133 @@ def _parse_year(date_str: str, date_order: str = "DMY") -> int | None:
     return None
 
 
+def _increment(counts: dict[str, int] | None, key: str, amount: int = 1) -> None:
+    if counts is not None:
+        counts[key] = counts.get(key, 0) + amount
+
+
+def _norm_name_signature(text: str) -> str:
+    tokens = [
+        t.latin.casefold()
+        for t in normalize_name(text)
+        if t.kind != "honorific" and t.latin
+    ]
+    return " ".join(tokens)
+
+
+def _row_name(rec: Record, spans: list[Span] | None = None) -> str:
+    """A complete, unambiguous name field to corroborate an opaque ID column."""
+    signatures = set()
+    indexed = rec.meta.get("coltypes_by_idx", {})
+    allowed = set(rec.meta.get("direct_fields", ())) | set(rec.meta.get("patient_subfields", ()))
+    is_row = rec.key[1].startswith("row:")
+    for fld in rec.fields:
+        if fld.vtype in {"key", "header", "path", "b64"}:
+            continue
+        is_name_fld = (
+            fld.path == "Patient.name"
+            or (is_row and (indexed.get(fld.idx) == "name" or rec.meta.get("coltypes", {}).get(fld.path) == "name"))
+            or (fld.idx in allowed and indexed.get(fld.idx) == "name")
+        )
+        if is_name_fld:
+            sig = _norm_name_signature(fld.text)
+            if len(sig.split()) >= 2:
+                signatures.add(sig)
+    if not signatures and spans:
+        by_idx = {f.idx: f for f in rec.fields}
+        for sp in spans:
+            if not sp.protected and sp.typ == "PATIENT_NAME" and sp.role == "patient":
+                fld = by_idx.get(sp.field_idx)
+                if fld is not None:
+                    sig = _norm_name_signature(fld.text[sp.start:sp.end])
+                    if len(sig.split()) >= 2:
+                        signatures.add(sig)
+    return signatures.pop() if len(signatures) == 1 else ""
+
+
+def _names_compatible(a: str, b: str) -> bool:
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    ta, tb = a.split(), b.split()
+    if len(ta) >= 2 and len(tb) >= 2 and ta[0] == tb[0]:
+        # Support shortened initial ("thiruvenkadam s" vs "thiruvenkadam shaikh")
+        if (len(ta[1]) == 1 and tb[1].startswith(ta[1])) or (len(tb[1]) == 1 and ta[1].startswith(tb[1])):
+            return True
+    return sorted(ta) == sorted(tb)
+
+
+def scope_local_ids(evidences: list[Evidence], *, diagnostics: dict[str, int] | None = None) -> None:
+    """Resolve issuer provenance from this intake's explicit declarations.
+
+    An opaque row 'id' is scoped only when a separate patient record agrees on
+    its entire value and name. This never infers that a different ID in the
+    same column belongs to a patient. Explicit patient fields may use a format
+    attested by two distinct patient identifiers in one assigning system.
+    """
+    examples: dict[tuple[str, ...], dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
+    named: dict[tuple[LocalID, str, str], set[str]] = defaultdict(set)
+    id_names: dict[tuple[LocalID, str], list[tuple[str, str]]] = defaultdict(list)
+
+    def _record_named(ob: LocalObservation, namespace: str) -> None:
+        if ob.name:
+            named[(ob.local, ob.value, ob.name)].add(namespace)
+            id_names[(ob.local, ob.value)].append((namespace, ob.name))
+
+    for ev in evidences:
+        for ob in getattr(ev, "local_observations", ()):
+            if ob.namespace:
+                examples[ob.local.format][ob.namespace].add(ob.value)
+                _record_named(ob, ob.namespace)
+
+    # Pass 1: scope explicit patient_field observations whose format has an unambiguous attested issuer.
+    pending: list[tuple[Evidence, LocalObservation]] = []
+    for ev in evidences:
+        for ob in getattr(ev, "local_observations", ()):
+            if ob.namespace:
+                continue
+            issuers = examples.get(ob.local.format, {})
+            if len(issuers) > 1:
+                _increment(diagnostics, "issuer_mismatches")
+                continue
+            if ob.patient_field and len(issuers) == 1:
+                namespace, values = next(iter(issuers.items()))
+                if ob.value in values or len(values) >= 2:
+                    core = ob.value if namespace.startswith("uhid:system:") else ob.local.core
+                    _dedup_extend(ev.ids.setdefault(namespace, []), [core])
+                    _increment(diagnostics, "scoped_ids")
+                    _record_named(ob, namespace)
+                    continue
+            pending.append((ev, ob))
+
+    # Pass 2: scope remaining observations corroborated on value + compatible patient name.
+    for ev, ob in pending:
+        issuers = examples.get(ob.local.format, {})
+        if len(issuers) > 1:
+            _increment(diagnostics, "issuer_mismatches")
+            continue
+        matches = named.get((ob.local, ob.value, ob.name), set())
+        if len(matches) == 1:
+            namespace = next(iter(matches))
+        elif ob.local.issuer_bearing and ob.name:
+            compat_ns = {
+                ns for ns, other_name in id_names.get((ob.local, ob.value), ())
+                if _names_compatible(ob.name, other_name)
+            }
+            if len(compat_ns) == 1:
+                namespace = next(iter(compat_ns))
+            else:
+                _increment(diagnostics, "missing_issuer")
+                continue
+        else:
+            _increment(diagnostics, "missing_issuer")
+            continue
+        core = ob.value if namespace.startswith("uhid:system:") else ob.local.core
+        _dedup_extend(ev.ids.setdefault(namespace, []), [core])
+        _increment(diagnostics, "scoped_ids")
+
+
 def _intersect_interval(
     cur: tuple[int, int] | None,
     new: tuple[int, int],
@@ -375,6 +504,16 @@ def extract(
         hospital = hospital.strip() or None
     else:
         hospital = None
+    direct = rec.meta.get("direct_fields", ())
+    row = rec.key[1].startswith("row:")
+    if not hospital:
+        issuer_fields = {
+            fld.text.strip() for fld in rec.fields if (row or fld.idx in direct)
+            and fld.path.rpartition("/")[2].casefold() in {"issuer", "issuer_code", "hospital_code"}
+            and fld.text.strip()
+        }
+        if len(issuer_fields) == 1:
+            hospital = issuer_fields.pop()
 
     # Validate, scope, and deduplicate spans in deterministic (field_idx, start, end) order.
     valid_spans: list[Span] = []
@@ -401,6 +540,22 @@ def extract(
     kin_cues: list[str] = []
     patient_honorific_sexes: list[str] = []
     ids: dict[str, list[str]] = {}
+    local_observations: list[LocalObservation] = []
+    system_fields = rec.meta.get("issuer_by_idx", {})
+    row_name = _row_name(rec, valid_spans)
+    for idx, system in system_fields.items():
+        fld = fields_by_idx.get(idx)
+        if fld is None or not system or not fld.text.strip() or rec.meta.get("multi_patient"):
+            continue
+        namespace = "uhid:system:" + quote(system.strip(), safe="")
+        value = fld.text
+        _dedup_extend(ids.setdefault(namespace, []), [value])
+        _increment(diagnostics, "typed_patient_id_fields")
+        _increment(diagnostics, "recognized_patient_id_values")
+        _increment(diagnostics, "scoped_ids")
+        local = parse_local_id(value)
+        if local and local.issuer_bearing:
+            local_observations.append(LocalObservation(local, value, namespace, True, row_name))
     phones: list[str] = []
     adm_candidates: list[str] = []
     dob_years: list[int] = []
@@ -412,6 +567,15 @@ def extract(
         surface = fld.text[sp.start : sp.end]
         typ = sp.typ.upper()
         role = sp.role
+
+        if sp.field_idx in system_fields and typ in {"MRN", "UHID", "PAN", "AADHAAR", "ABHA_NUMBER", "PHONE"}:
+            # A bare digit sequence inside a local assigning system is not a
+            # national identifier or telephone number simply because it fits.
+            system = str(system_fields[sp.field_idx]).strip().casefold().rstrip("/")
+            if not ((typ == "ABHA_NUMBER" and system in {
+                "https://healthid.abdm.gov.in", "https://healthid.ndhm.gov.in",
+            }) or (typ == "AADHAAR" and system in {"https://uidai.gov.in", "http://uidai.gov.in"})):
+                continue
 
         if typ == "PATIENT_NAME":
             if role in _EXCLUDED_NAME_ROLES or role == "relative":
@@ -444,16 +608,41 @@ def extract(
                 adm_candidates.append(adm_norm)
 
         elif typ in {"AADHAAR", "AADHAAR_MASKED", "ABHA_NUMBER", "PAN", "MRN", "UHID", "INSURANCE_ID"}:
+            if fld.vtype in {"key", "header", "path", "b64"} or role in _EXCLUDED_NAME_ROLES:
+                continue
+            if typ != "INSURANCE_ID" and _OTHER_ENTITY.search(fld.path):
+                continue
+            if typ in {"MRN", "UHID"}:
+                full_field = fld.text.strip() == surface.strip()
+                allowed_fields = set(direct) | set(rec.meta.get("patient_subfields", ()))
+                header_owned = patient_id_header(fld.path) or fld.idx in rec.meta.get("patient_id_fields", ())
+                if fld.path.startswith(rec.key[1] + "/") and rec.key[1].startswith("/") and fld.idx not in allowed_fields:
+                    continue
+                labeled = _PATIENT_LABEL.search(fld.text[max(0, sp.start - 32):sp.start]) is not None
+                owned = (header_owned and full_field) or labeled
+                generic = (fld.idx in direct and full_field and fld.path.rpartition("/")[2].casefold() == "id"
+                           and not any(patient_id_header(f.path) for f in rec.fields if f.idx in direct))
+                if owned:
+                    _increment(diagnostics, "typed_patient_id_fields")
+                local = parse_local_id(surface)
+                if local or surface.strip().isdecimal():
+                    _increment(diagnostics, "recognized_patient_id_values")
+                ns, core = _normalize_typed_id(typ, surface, hospital) if owned else (None, None)
+                if hospital and local and local.issuer_bearing and local.prefix != hospital.strip().casefold():
+                    _increment(diagnostics, "issuer_mismatches")
+                    continue
+                if not (owned or generic):
+                    continue
+                if local and local.issuer_bearing:
+                    local_observations.append(LocalObservation(local, surface.strip(), ns, owned, row_name))
+                elif ns is None:
+                    _increment(diagnostics, "missing_issuer")
+                if ns and core:
+                    _dedup_extend(ids.setdefault(ns, []), [core])
+                    _increment(diagnostics, "scoped_ids")
+                continue
             ns, core = _normalize_typed_id(typ, surface, hospital)
             if ns and core:
-                if (
-                    diagnostics is not None
-                    and hospital
-                    and ns.startswith("uhid:")
-                ):
-                    hosp_norm = re.sub(r"[^a-z0-9]", "", hospital.casefold())
-                    if hosp_norm and ns != f"uhid:{hosp_norm}":
-                        diagnostics["issuer_mismatches"] = diagnostics.get("issuer_mismatches", 0) + 1
                 bucket = ids.setdefault(ns, [])
                 if core not in bucket:
                     bucket.append(core)
@@ -601,4 +790,5 @@ def extract(
         hospital=hospital,
         adm_key=adm_key,
         dates=dates_out,
+        local_observations=local_observations,
     )

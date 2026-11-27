@@ -12,6 +12,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
 
+from kavachmed import credentials
 from kavachmed.contracts import Edit, Field, FileEntry, LocEntry, LocMap, ParsedFile, RecKey, Record, Span
 from kavachmed.security import StageError
 from kavachmed.urm import apply_field_edits_with_loc
@@ -58,25 +59,9 @@ def _scan_string(s: str, i: int, n: int) -> tuple[str, int]:
     return val, end
 
 
-def _is_text_b64(val: str, key_hint: str) -> str | None:
-    if len(val) < 16 or len(val) % 4 != 0:
-        return None
-    low_key = key_hint.lower()
-    if not any(h in low_key for h in _B64_KEY_HINTS):
-        return None
-    try:
-        raw = base64.b64decode(val, validate=True)
-        decoded = raw.decode("utf-8", errors="strict")
-    except Exception:  # noqa: BLE001
-        return None
-    if any(ord(ch) < 32 and ch not in ("\t", "\r", "\n") for ch in decoded):
-        return None
-    return decoded
-
-
 def _tokenize_iterative(
     s: str, max_depth: int
-) -> tuple[list[_Token], bool, dict[str, list[bool]], list[bool], list[tuple[str | None, int, int, int]]]:
+) -> tuple[list[_Token], bool, dict[str, list[bool]], list[bool], list[tuple[str | None, int, int, int]], dict[int, str], dict[int, int]]:
     """Iterative RFC 8259 parser.
 
     Returns (tokens, is_bundle, top_array_dict_flags, root_array_dict_flags, candidate_obj_records).
@@ -90,6 +75,8 @@ def _tokenize_iterative(
     tokens: list[_Token] = []
     # Frame: [kind ("obj"|"arr"), state, obj_id, top_key, arr_idx, elem_count, start_pos]
     stack: list[list[Any]] = []
+    owners: dict[int, str] = {}
+    starts: dict[int, int] = {}
     next_obj_id = 1
     is_bundle = False
     top_array_dict_flags: dict[str, list[bool]] = {}
@@ -117,6 +104,10 @@ def _tokenize_iterative(
                 top_array_dict_flags[parent[3]].append(ch == "{")
         oid = next_obj_id
         next_obj_id += 1
+        starts[oid] = pos
+        if stack:
+            parent_id = stack[-1][2]
+            owners[oid] = (tokens[-1].value if tokens and tokens[-1].vtype == "key" and tokens[-1].obj_id == parent_id else owners.get(parent_id, ""))
         stack.append(["obj" if ch == "{" else "arr", "START", oid, top_key, arr_idx, 0, pos])
         return pos + 1
 
@@ -258,6 +249,9 @@ def _tokenize_iterative(
         if tokens and tokens[-1].vtype == "key" and tokens[-1].obj_id == oid:
             last_key = tokens[-1].value
 
+        role = credentials.json_role(owners.get(oid, ""), last_key)
+        if role and role != "attachment_meta" and ch != '"' and not (role == "attachment" and ch in "{["):
+            raise StageError("parse", "E_ATTACHMENT" if role.startswith("attachment") else "E_FIELD_TYPE")
         if ch in "{[":
             i = push_container(ch, i)
             continue
@@ -309,7 +303,7 @@ def _tokenize_iterative(
             continue
         raise StageError("parse", "E_INVALID_JSON")
 
-    return tokens, is_bundle, top_array_dict_flags, root_array_dict_flags, candidate_obj_records
+    return tokens, is_bundle, top_array_dict_flags, root_array_dict_flags, candidate_obj_records, owners, starts
 
 
 _PATIENT_LEVEL_KEYS = frozenset({
@@ -321,7 +315,7 @@ _PATIENT_LEVEL_KEYS = frozenset({
 def parse(entry: FileEntry, max_depth: int = 4000) -> ParsedFile:
     assert entry.text is not None
     src = entry.text
-    tokens, is_bundle, top_array_dict_flags, root_array_dict_flags, cand_recs = _tokenize_iterative(src, max_depth)
+    tokens, is_bundle, top_array_dict_flags, root_array_dict_flags, cand_recs, owners, starts = _tokenize_iterative(src, max_depth)
 
     record_array_keys = {
         k for k, flags in top_array_dict_flags.items()
@@ -365,6 +359,7 @@ def parse(entry: FileEntry, max_depth: int = 4000) -> ParsedFile:
                 get_rec(loc)
                 obj_bounds[loc] = (s_pos, e_pos)
 
+    budget = credentials.AttachmentBudget()
     for tok in tokens:
         if is_root_record_array and tok.arr_idx is not None:
             loc = f"/{tok.arr_idx}"
@@ -379,15 +374,25 @@ def parse(entry: FileEntry, max_depth: int = 4000) -> ParsedFile:
 
         vtype = tok.vtype
         field_text = tok.value
-        if vtype == "str":
-            decoded_b64 = _is_text_b64(tok.value, tok.key_hint)
-            if decoded_b64 is not None:
-                vtype = "b64"
-                field_text = decoded_b64
-                tok.vtype = "b64"
-                tok.value = decoded_b64
-
         tok.field_idx = len(rec.fields)
+        role = credentials.json_role(owners.get(tok.obj_id, ""), tok.key_hint)
+        if role:
+            rec.meta.setdefault("release_roles", {})[tok.field_idx] = role
+        if not is_bundle and role == "attachment" and vtype == "str":
+            try:
+                field_text = budget.decode(tok.value)
+            except StageError:
+                # An optional untyped string attachment can be cleared without changing its schema.
+                if credentials.normalized(tok.key_hint) != "attachment":
+                    raise
+                rec.meta["release_roles"][tok.field_idx] = "attachment_meta"
+            else:
+                vtype = tok.vtype = "b64"
+                tok.value = field_text
+        if tok.key_hint and obj_bounds.get(loc, (None,))[0] == starts.get(tok.obj_id):
+            rec.meta.setdefault("direct_fields", set()).add(tok.field_idx)
+        elif tok.key_hint and owners.get(tok.obj_id, "").casefold() in {"pt", "patient", "beneficiary", "member"}:
+            rec.meta.setdefault("patient_subfields", set()).add(tok.field_idx)
         rec.fields.append(Field(
             idx=tok.field_idx,
             path=f"{loc}/{pointer_segment(tok.key_hint or tok.vtype)}",

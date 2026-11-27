@@ -35,6 +35,7 @@ EXEMPT_KINDS: frozenset[str] = frozenset(
         "ward",
         "department",
         "hospital",
+        "district",
         "history",
         "clinical",
         "doctor_registry",

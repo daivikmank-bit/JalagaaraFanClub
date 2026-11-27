@@ -32,6 +32,7 @@ class StrictResult:
     shared_phones: tuple[str, ...]
     phone_shared_records: tuple[RecKey, ...]
     contested_bridges: tuple[tuple[int, str, str], ...] = ()
+    fuzzy_ineligible: frozenset[RecKey] = frozenset()
 
 
 def _policy_get(policy: Mapping[str, Any] | Any, key: str, default: Any = None) -> Any:
@@ -192,6 +193,10 @@ def _group_has_conflict(
             if max_lo - min_hi > _MAX_BIRTH_YEAR_GAP:
                 return True, "birth_year_conflict"
 
+    # Every ID-bridged pair veto is already covered by the summaries above.
+    if id_bridged:
+        return False, None
+
     # Bounded pairwise checks for relative conflicts.
     pair_count = n * (n - 1) // 2
     if pair_count > max_pair_checks:
@@ -308,6 +313,7 @@ def build_strict_clusters(
     record_strong_keys: dict[RecKey, list[tuple[int, str, str]]] = {rk: [] for rk in sorted_keys}
     record_adm_keys: dict[RecKey, list[tuple[int, str, str]]] = {rk: [] for rk in sorted_keys}
     contested_bridges: list[tuple[int, str, str]] = []
+    fuzzy_ineligible: set[RecKey] = set()
 
     for ns, core in sorted(strong_buckets):
         members = strong_buckets[(ns, core)]
@@ -316,6 +322,7 @@ def build_strict_clusters(
         conflict, reason = _group_has_conflict(members, by_key, max_pair_checks)
         if conflict:
             contested_bridges.append((0, ns, core))
+            fuzzy_ineligible.update(members)
             if diagnostics is not None:
                 diagnostics["contested_bridges"] = diagnostics.get("contested_bridges", 0) + 1
                 if reason == "over_budget":
@@ -335,6 +342,7 @@ def build_strict_clusters(
             continue
         conflict, reason = _group_has_conflict(members, by_key, max_pair_checks)
         if conflict:
+            fuzzy_ineligible.update(members)
             if diagnostics is not None:
                 diagnostics["contested_bridges"] = diagnostics.get("contested_bridges", 0) + 1
                 if reason == "over_budget":
@@ -359,6 +367,7 @@ def build_strict_clusters(
         if len(members) < 2:
             continue
         if len(members) > max_component_size:
+            fuzzy_ineligible.update(members)
             if diagnostics is not None:
                 diagnostics["over_budget_abstentions"] = (
                     diagnostics.get("over_budget_abstentions", 0) + 1
@@ -367,6 +376,7 @@ def build_strict_clusters(
 
         conflict, reason = _group_has_conflict(members, by_key, max_pair_checks)
         if conflict:
+            fuzzy_ineligible.update(members)
             if diagnostics is not None:
                 if reason == "over_budget":
                     diagnostics["over_budget_abstentions"] = (
@@ -409,4 +419,5 @@ def build_strict_clusters(
         shared_phones=tuple(shared_phones),
         phone_shared_records=tuple(sorted(phone_shared_records_set)),
         contested_bridges=tuple(sorted(contested_bridges)),
+        fuzzy_ineligible=frozenset(fuzzy_ineligible),
     )

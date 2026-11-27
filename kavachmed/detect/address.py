@@ -11,6 +11,7 @@ _DEVA_DIGITS = str.maketrans("०१२३४५६७८९", "0123456789")
 _RE_CO_PREFIX = re.compile(r"^\s*C/O[ \t]+([^,\n]+)", re.I)
 _RE_HOUSE = re.compile(
     r"\b(?:H\.?\s*No\.?|House\s*No\.?|Plot\s*No\.?|Flat\s*No\.?)\s*[:#-]?\s*[A-Za-z0-9/-]+|"
+    r"\bHouse\s+\d+[A-Za-z0-9/-]*|"
     r"(?:मकान\s*नं\.?)\s*[:#-]?\s*[A-Za-z0-9\u0966-\u096F/-]+",
     re.I,
 )
@@ -20,11 +21,11 @@ _RE_LOCALITY = re.compile(
     re.I,
 )
 _RE_LANDMARK = re.compile(
-    r"\b(?:near|opp\.?|opposite|behind|beside)\s+[^,\n]+|(?:के\s+पास|के\s+सामने)\s+[^,\n]+",
+    r"\b(?:near|opp\.?|opposite|behind|beside)\s+[^,\n]+|(?:के\s+पास|के\s+सामने|के\s+पीछे)\s+[^,\n]+",
     re.I,
 )
 _RE_VILLAGE = re.compile(
-    r"\b(?:Village|Vill\.?|Gram|Tehsil|Taluka|Post)\s+[^,\n]+|(?:गांव|ग्राम|तहसील)\s+[^,\n]+",
+    r"\b(?:Village|Vill\.?|Gram|Tehsil|Taluka|Tal\.?|Post)\s+[^,\n]+|(?:गांव|ग्राम|तहसील)\s+[^,\n]+",
     re.I,
 )
 _RE_DISTRICT = re.compile(
@@ -34,8 +35,8 @@ _RE_DISTRICT = re.compile(
 _RE_PIN_LABELED = re.compile(r"(?:\bPIN(?:\s*Code)?|पिन(?:\s*कोड)?)\s*[:\-]?\s*([1-8]\d{5})\b", re.I)
 _RE_PIN_BARE = re.compile(r"\b([1-8]\d{5})\b")
 _RE_ADDR_CONTEXT = re.compile(
-    r"\b(?:h\.?\s*no|house|ward|mohalla|gali|colony|village|vill\.?|gram|tehsil|district|dist\.?|pin)\b|"
-    r"पता|मकान|वार्ड|मोहल्ला|गांव|ग्राम|तहसील|जिला|पिन",
+    r"\b(?:h\.?\s*no|house|ward|mohalla|gali|colony|village|vill\.?|gram|tehsil|district|dist\.?|pin|nivas|niwas|sthan|abode)\b|"
+    r"पता|निवास|मकान|वार्ड|मोहल्ला|गांव|ग्राम|तहसील|जिला|पिन",
     re.I,
 )
 
@@ -163,7 +164,7 @@ def _co_is_relative(after: str) -> bool:
     return bool(_RE_CO_NAME_START.match(head))
 
 
-_RE_ADDR_COL = re.compile(r"address|addr|pata|patta|पता|residence|locality|ghar", re.I)
+_RE_ADDR_COL = re.compile(r"address|addr|pata|patta|पता|residence|locality|ghar|nivas|niwas|sthan|abode|निवास", re.I)
 _RE_SEGMENT = re.compile(r"[^,\n;]+")
 _RE_ADDR_LABEL = re.compile(r"(?i:\b(?:address|addr|pata|residence)\b)[^:\n]{0,30}:|पता\s*:")
 _ADDR_KEEP = {"india", "c/o"}

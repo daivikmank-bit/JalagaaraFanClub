@@ -11,3 +11,5 @@ dev/
 *truth*.json
 registry.csv
 known_facts.jsonl
+
+/gauntlet-reports/

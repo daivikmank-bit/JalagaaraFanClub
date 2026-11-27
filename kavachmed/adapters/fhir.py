@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import base64
+from kavachmed import credentials as cred
 import binascii
 import copy
 import datetime as dt
@@ -13,7 +14,6 @@ from typing import Any
 from kavachmed import dates as dates_mod
 from kavachmed.contracts import (
     Edit,
-    Evidence,
     Field,
     FileEntry,
     LocEntry,
@@ -127,16 +127,41 @@ def _surrogate_telecom(keys: Keys | None, system: str, orig: str) -> str:
     return "[EMAIL]" if system.lower() == "email" else "[PHONE]"
 
 
+_RE_KINSHIP_TEXT = re.compile(
+    r"(\b(?:S/o|D/o|W/o|C/O)\s+|(?:पुत्र|पुत्री|पत्नी|पिता|पति)\s+)"
+    r"(?:(?:Shri|Smt|Sri|Mr|Mrs|Late)\.?\s+)?"
+    r"(?:[A-Z][a-zA-Z.'-]*(?:[ \t]+[A-Z][a-zA-Z.'-]*){0,4}|[\u0900-\u097F]{2,}(?:[ \t]+[\u0900-\u097F]{2,}){0,4})",
+    re.I,
+)
+
+
 def _sanitize_plain_pii(
     text: str,
     known_names: list[str],
     psn: str | None,
     shift_days: int,
     age_band: str | None,
+    known_places: list[str] | None = None,
 ) -> str:
-    out = text
+    out = _RE_KINSHIP_TEXT.sub(r"\1[RELATIVE]", text)
+    for pl in sorted({p.strip() for p in (known_places or ()) if len(p.strip()) >= 2}, key=len, reverse=True):
+        out = re.sub(rf"(?i)(?<!\w){re.escape(pl)}(?!\w)", "[VILLAGE]", out)
+    # Match full names and patient tokens across honorifics/middle-names like "Md. X" or "X Devi Y"
+    rep_name = psn or "[NAME]"
     for nm in sorted({n.strip() for n in known_names if len(n.strip()) >= 2}, key=len, reverse=True):
-        out = re.sub(rf"(?i)(?<!\w){re.escape(nm)}(?!\w)", psn or "[NAME]", out)
+        out = re.sub(rf"(?i)(?<!\w){re.escape(nm)}(?!\w)", rep_name, out)
+    if psn:
+        out = re.sub(
+            rf"(?i)\b(?:Md|Mohd|Mr|Mrs|Ms|Shri|Smt)\.?\s+(?={re.escape(psn)}\b)",
+            "",
+            out,
+        )
+        out = re.sub(
+            rf"(?i){re.escape(psn)}\s+(?:Devi|Kumar|Kumari|Lal|Prasad|Babu|Ji|Sahab|Didi)\s+{re.escape(psn)}",
+            psn,
+            out,
+        )
+        out = re.sub(rf"(?:{re.escape(psn)}\s+)+{re.escape(psn)}", psn, out)
     out = _PHONE_RE.sub("[PHONE]", out)
     out = _AADHAAR_RE.sub("[AADHAAR]", out)
     out = _EMAIL_RE.sub("[EMAIL]", out)
@@ -158,6 +183,7 @@ def _sanitize_xhtml_div(
     psn: str | None,
     shift_days: int,
     age_band: str | None,
+    known_places: list[str] | None = None,
 ) -> str:
     """Sanitize XHTML text nodes while preserving tags and valid XML escaping."""
     parts = _TAG_SPLIT_RE.split(div_html)
@@ -169,10 +195,26 @@ def _sanitize_xhtml_div(
             out_parts.append(part)
         else:
             unescaped = html.unescape(part)
-            cleaned = _sanitize_plain_pii(unescaped, known_names, psn, shift_days, age_band)
+            cleaned = _sanitize_plain_pii(unescaped, known_names, psn, shift_days, age_band, known_places=known_places)
             cleaned = _PIN_RE.sub("[PIN]", cleaned)
             out_parts.append(html.escape(cleaned, quote=False))
     return "".join(out_parts)
+
+
+def _collect_patient_places(bundle: dict[str, Any]) -> list[str]:
+    places: list[str] = []
+    for entry in bundle.get("entry") or []:
+        res = entry.get("resource") or {}
+        if res.get("resourceType") == "Patient":
+            for addr in res.get("address") or []:
+                if not isinstance(addr, dict):
+                    continue
+                if addr.get("city") and addr.get("city") != addr.get("district"):
+                    places.append(str(addr["city"]))
+                for ln in addr.get("line") or []:
+                    if ln:
+                        places.append(str(ln))
+    return places
 
 
 def _collect_patient_names(bundle: dict[str, Any]) -> list[str]:
@@ -434,6 +476,77 @@ def _derive_shift_days(keys: Keys | None, fam: str, pol: dict[str, Any]) -> int:
     return sign * mag
 
 
+def _channels(bundle, clean=None, decoded_ok=None):
+    budget = cred.AttachmentBudget()
+    stack = [("", bundle)]
+    while stack:
+        owner, obj = stack.pop()
+        if isinstance(obj, list):
+            stack.extend((owner, value) for value in obj)
+            continue
+        if not isinstance(obj, dict):
+            continue
+        rt = obj.get("resourceType")
+        for key, value in list(obj.items()):
+            child = key
+            if (rt, key) in {("Patient", "photo"), ("Practitioner", "photo"), ("Media", "content"),
+                               ("DiagnosticReport", "presentedForm"), ("Person", "photo")} or key in {"attachment", "valueAttachment"}:
+                child = "@attachment"
+            if isinstance(value, (dict, list)) and cred.normalized(key) not in cred.SECRET_FIELDS:
+                stack.append((child, value))
+                continue
+            role = cred.json_role(owner, key)
+            if role in {"credential", "source"} or (owner == "meta" and key == "source"):
+                marker = cred.MARKER if role == "credential" else "[SOURCE]" if owner == "meta" else cred.SOURCE
+                if not isinstance(value, str):
+                    return False
+                if value and value != marker:
+                    if clean is None:
+                        return False
+                    obj[key] = marker
+            elif isinstance(value, str):
+                for start, end in sorted(set(cred.inline_ranges(value)), reverse=True):
+                    if clean is None:
+                        return False
+                    value = value[:start] + cred.MARKER + value[end:]
+                obj[key] = value
+        if rt != "Binary" and owner != "@attachment":
+            continue
+        if clean is None and any(k in obj for k in ("size", "hash", "title")):
+            return False
+        if "url" in obj and not str(obj["url"]).startswith(("#", "urn:uuid:", "Binary/")):
+            if clean is None:
+                return False
+            obj.pop("url")
+        for key in ("size", "hash", "title"):
+            obj.pop(key, None)
+        if "data" not in obj:
+            if "url" not in obj:
+                return False
+            continue
+        media = str(obj.get("contentType", "")).partition(";")[0].lower()
+        if media != "text/plain":
+            if clean is None or not media or obj.get("meta", {}).get("profile"):
+                return False
+            obj["contentType"] = "text/plain"
+            obj["data"] = base64.b64encode(b"[BINARY_NEUTRALIZED]").decode("ascii")
+            continue
+        text = budget.decode(obj["data"])
+        if clean is None:
+            if not decoded_ok(text):
+                return False
+        else:
+            for start, end in sorted(set(cred.inline_ranges(text)), reverse=True):
+                text = text[:start] + cred.MARKER + text[end:]
+            text = cred._MRN_LABEL.sub("[MRN]", text)
+            obj["data"] = base64.b64encode(clean(text).encode("utf8")).decode("ascii")
+    return True
+
+
+def verify_channels(bundle, decoded_ok):
+    return _channels(bundle, decoded_ok=decoded_ok)
+
+
 def parse(entry: FileEntry, policy: dict[str, Any], raw_obj: dict[str, Any] | None = None) -> ParsedFile:
     """Parse an ABDM FHIR R4 Bundle and attach its structural projector."""
     if raw_obj is None:
@@ -452,7 +565,13 @@ def parse(entry: FileEntry, policy: dict[str, Any], raw_obj: dict[str, Any] | No
     rec_key: RecKey = (entry.rel_path, "doc")
     orig_profiles = list((raw_obj.get("meta") or {}).get("profile") or [])
     fields, qi_summary = _extract_fhir_fields(raw_obj)
-    rec = Record(key=rec_key, fields=fields, meta={"is_fhir": True})
+    patients = [e["resource"] for e in raw_obj["entry"] if (e.get("resource") or {}).get("resourceType") == "Patient"]
+    systems = {}
+    if len(patients) == 1:
+        ids = (i for i in patients[0].get("identifier", []) if isinstance(i, dict) and i.get("value"))
+        systems = {f.idx: i["system"] for f, i in zip((f for f in fields if f.path == "Patient.identifier"), ids)
+                   if isinstance(i.get("system"), str) and i["system"]}
+    rec = Record(key=rec_key, fields=fields, meta={"is_fhir": True, "issuer_by_idx": systems, "multi_patient": len(patients) > 1})
     fhir_ctx: dict[str, Any] = {"resolution": None, "plan": None, "keys": None, "policy": policy}
 
     def _project(
@@ -504,6 +623,7 @@ def parse(entry: FileEntry, policy: dict[str, Any], raw_obj: dict[str, Any] | No
 
         bundle = copy.deepcopy(raw_obj)
         known_names = _collect_patient_names(bundle)
+        known_places = _collect_patient_places(bundle)
         lgd = loc_mod.get_lgd_index()
 
         if isinstance(bundle.get("meta"), dict):
@@ -565,6 +685,7 @@ def parse(entry: FileEntry, policy: dict[str, Any], raw_obj: dict[str, Any] | No
                     info = lgd.lookup_district(raw_dist) if raw_dist else None
                     if loc_level == "district" and raw_dist:
                         na["district"] = info[1] if info else raw_dist
+                        clinical_texts.append(na["district"])
                     state_val = addr.get("state") or (info[2] if info else None)
                     if state_val:
                         na["state"] = state_val
@@ -579,7 +700,7 @@ def parse(entry: FileEntry, policy: dict[str, Any], raw_obj: dict[str, Any] | No
                 if is_suppressed_qi and "gender" in r:
                     r["gender"] = "unknown"
                 if isinstance(r.get("text"), dict) and isinstance(r["text"].get("div"), str):
-                    r["text"]["div"] = _sanitize_xhtml_div(r["text"]["div"], known_names, psn, shift_days, age_band)
+                    r["text"]["div"] = _sanitize_xhtml_div(r["text"]["div"], known_names, psn, shift_days, age_band, known_places=known_places)
 
             elif rt == "Practitioner":
                 for nm in r.get("name") or []:
@@ -603,7 +724,7 @@ def parse(entry: FileEntry, policy: dict[str, Any], raw_obj: dict[str, Any] | No
                 if "date" in r:
                     r["date"] = _shift_iso_preserve_precision(str(r["date"]), shift_days)
                 if isinstance(r.get("text"), dict) and isinstance(r["text"].get("div"), str):
-                    r["text"]["div"] = _sanitize_xhtml_div(r["text"]["div"], known_names, psn, shift_days, age_band)
+                    r["text"]["div"] = _sanitize_xhtml_div(r["text"]["div"], known_names, psn, shift_days, age_band, known_places=known_places)
 
             elif rt == "Encounter":
                 for id_obj in r.get("identifier") or []:
@@ -660,50 +781,13 @@ def parse(entry: FileEntry, policy: dict[str, Any], raw_obj: dict[str, Any] | No
             elif rt == "DocumentReference":
                 if "date" in r:
                     r["date"] = _shift_iso_preserve_precision(str(r["date"]), shift_days)
-                for c in r.get("content") or []:
-                    att = c.get("attachment") if isinstance(c, dict) else None
-                    if not isinstance(att, dict):
-                        continue
-                    ct = str(att.get("contentType", "")).lower()
-                    raw_b64 = att.get("data")
-                    if raw_b64 is not None:
-                        try:
-                            decoded = base64.b64decode(str(raw_b64).encode("ascii"), validate=True)
-                            if ct.startswith("text/") or ct == "application/json" or not ct:
-                                try:
-                                    txt = decoded.decode("utf-8", errors="strict")
-                                    san_txt = _sanitize_plain_pii(txt, known_names, psn, shift_days, age_band)
-                                    att["data"] = base64.b64encode(san_txt.encode("utf-8")).decode("ascii")
-                                except UnicodeDecodeError:
-                                    att.pop("data", None)
-                                    att["title"] = "[BINARY_ATTACHMENT]"
-                            else:
-                                att.pop("data", None)
-                                att["title"] = "[BINARY_ATTACHMENT]"
-                        except (binascii.Error, UnicodeEncodeError):
-                            att.pop("data", None)
-                            att["title"] = "[BINARY_ATTACHMENT]"
-
-            elif rt == "Binary":
-                ct = str(r.get("contentType", "")).lower()
-                raw_b64 = r.get("data")
-                if raw_b64 is not None:
-                    try:
-                        decoded = base64.b64decode(str(raw_b64).encode("ascii"), validate=True)
-                        if ct.startswith("text/") or ct == "application/json":
-                            txt = decoded.decode("utf-8", errors="strict")
-                            san_txt = _sanitize_plain_pii(txt, known_names, psn, shift_days, age_band)
-                            r["data"] = base64.b64encode(san_txt.encode("utf-8")).decode("ascii")
-                        else:
-                            r["data"] = base64.b64encode(b"[BINARY_NEUTRALIZED]").decode("ascii")
-                    except (binascii.Error, UnicodeDecodeError, UnicodeEncodeError):
-                        r["data"] = base64.b64encode(b"[BINARY_NEUTRALIZED]").decode("ascii")
-
             elif rt == "Media":
                 r["status"] = "entered-in-error"
                 r.pop("content", None)
                 r["note"] = [{"text": "[MEDIA_DROPPED]"}]
 
+        if not _channels(bundle, clean=lambda text: _sanitize_plain_pii(text, known_names, psn, shift_days, age_band, known_places=known_places)):
+            raise StageError("parse", "E_ATTACHMENT")
         val_errors = validate_fhir_bundle(bundle, expected_profiles=orig_profiles)
         if val_errors:
             raise StageError("parse", "E_IO")

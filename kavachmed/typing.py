@@ -7,24 +7,35 @@ from collections import Counter
 from typing import Any
 
 from kavachmed.contracts import Record
+from kavachmed.local_ids import parse_local_id
 
 _DEVA_DIGITS = str.maketrans("०१२३४५६७८९", "0123456789")
 
 _HEADER_PRIORS: dict[str, set[str]] = {
-    "name": {"name", "patient_name", "pt_name", "full_name", "naam", "नाम", "मरीज का नाम", "patient"},
+    "name": {"name", "patient_name", "pt_name", "full_name", "naam", "नाम", "मरीज का नाम", "patient", "nm", "pt", "rogi", "insured", "beneficiary"},
     "relative": {"relative", "father_name", "husband_name", "spouse", "guardian", "care_of", "पिता", "पति"},
-    "phone": {"phone", "mobile", "mob", "contact", "tel", "telephone", "मोबाइल", "फोन", "संपर्क"},
-    "aadhaar": {"aadhaar", "aadhar", "uid", "uidai", "आधार"},
+    "phone": {"phone", "mobile", "mob", "contact", "tel", "telephone", "मोबाइल", "फोन", "संपर्क", "dooraabhash", "callback_no"},
+    "aadhaar": {"aadhaar", "aadhar", "uid", "uidai", "आधार", "aadhaar_sankhya", "aadhr_num"},
     "abha": {"abha", "abha_no", "abha_number", "abha_id", "abha_address", "health_id"},
-    "pan": {"pan", "pan_no", "pan_number"},
+    "pan": {"pan", "pan_no", "pan_number", "payer_pan"},
     "email": {"email", "e-mail", "mail"},
-    "id": {"uhid", "mrn", "ipd", "opd", "cr_no", "reg_no", "patient_id", "claim_id", "policy_no", "pmjay"},
-    "pin": {"pin", "pincode", "pin_code", "postal", "zip", "पिन"},
-    "date": {"date", "dob", "birth_date", "janm", "janm_tithi", "visit_date", "adm_date", "जन्म", "तारीख", "दिनांक"},
-    "age": {"age", "umar", "umra", "उम्र", "आयु"},
+    "id": {"uhid", "mrn", "ipd", "opd", "cr_no", "reg_no", "patient_id", "claim_id", "policy_no", "pmjay", "hosp_id", "hosp_no", "ref", "vzc_id"},
+    "pin": {"pin", "pincode", "pin_code", "postal", "zip", "पिन", "postcode"},
+    "date": {"date", "dob", "birth_date", "janm", "janm_tithi", "janm_din", "visit_date", "adm_date", "tithi", "born", "registered", "collected", "reported", "admitted", "discharged", "जन्म", "तारीख", "दिनांक"},
+    "age": {"age", "umar", "umra", "aayu", "yrs", "उम्र", "आयु"},
     "sex": {"sex", "gender", "ling", "लिंग"},
-    "address": {"address", "addr", "pata", "gaon", "village", "jila", "district", "tehsil", "mohalla", "पता", "गांव", "जिला"},
+    "address": {"address", "addr", "pata", "gaon", "village", "jila", "zila", "district", "tehsil", "taluka", "mohalla", "पता", "गांव", "जिला"},
+    "free_text": {"test", "test_name", "t", "dx", "diagnosis", "complaint", "advice", "procedure", "package", "unit", "u", "v", "value", "result"},
 }
+
+_LAB_TEST_WORDS = frozenset({
+    "haemoglobin", "hemoglobin", "blood", "sugar", "creatinine", "platelet", "platelets",
+    "bilirubin", "serum", "hba1c", "cholesterol", "triglycerides", "potassium", "sodium",
+    "urea", "uric", "thyroid", "tsh", "cbc", "rbs", "fbs", "ppbs", "esr", "crp", "alp",
+    "sgot", "sgpt", "count", "random", "fasting", "postprandial", "urine", "wbc", "rbc",
+    "ferritin", "troponin", "albumin", "calcium", "lipid", "liver", "kidney", "renal",
+    "routine", "profile", "panel", "test", "glucose", "electrolytes",
+})
 
 _RE_PHONE = re.compile(r"^(?:\+91[- ]?|0)?[6-9]\d{4}[- ]?\d{5}$")
 _RE_AADHAAR = re.compile(r"^[2-9]\d{3}[- ]?\d{4}[- ]?\d{4}$")
@@ -77,11 +88,13 @@ def _vote_value(raw: str) -> str | None:
         digits = re.match(r"^\d+", val)
         if digits and 0 <= int(digits.group()) <= 120:
             return "age"
-    if _RE_ID.match(val):
+    if _RE_ID.match(val) or parse_local_id(val) is not None:
         return "id"
     if _RE_ADDR_CUE.search(val) or ("," in val and len(val) > 15 and any(ch.isdigit() for ch in val)):
         return "address"
     if _RE_NAME_LIKE.match(val) and not any(ch.isdigit() for ch in val):
+        if any(w.casefold() in _LAB_TEST_WORDS for w in val.split()):
+            return "free_text"
         return "name"
     return "free_text"
 
@@ -99,57 +112,57 @@ def _header_prior(col_name: str) -> str | None:
     return None
 
 
+def _infer_type(header: str, votes: Counter[str]) -> str:
+    prior = _header_prior(header)
+    total = sum(votes.values())
+    if not total:
+        return prior or "free_text"
+    ranked = votes.most_common(2)
+    top_type, top_count = ranked[0]
+    if len(ranked) == 2 and top_count == ranked[1][1]:
+        if {t for t, _ in ranked}.issubset({"aadhaar", "abha", "id"}):
+            return "id"
+        return prior if prior and votes[prior] else "free_text"
+    if prior == "id" and top_type in {"pin", "id"}:
+        return "id"
+    if top_type != "free_text" and top_count / total > 0.5:
+        return top_type
+    if prior and (votes[prior] / total >= 0.3 or (top_type == "free_text" and total <= 2)):
+        return prior
+    return "free_text"
+
+
 def type_columns(records_or_parsed: Any) -> dict[str, str]:
-    """Infer semantic column/key types by voting over cell values with header priors."""
+    """Pool only direct JSON row scalars across rows of the same collection."""
     records: list[Record] = (
         records_or_parsed.records if hasattr(records_or_parsed, "records") else list(records_or_parsed)
     )
-    by_col: dict[str, list[str]] = {}
+    json_rows = getattr(records_or_parsed, "fmt", None) == "json"
+    votes: dict[tuple[str | None, str], Counter[str]] = {}
+    locations: list[tuple[Record, int, str, tuple[str | None, str]]] = []
     for rec in records:
+        loc = rec.key[1]
+        parent, _, index = loc.rpartition("/")
+        direct = rec.meta.get("direct_fields", ()) if json_rows and index.isascii() and index.isdigit() else ()
         for fld in rec.fields:
             if fld.vtype in {"path", "header", "key"}:
                 continue
-            by_col.setdefault(fld.path, []).append(fld.text)
+            key = (None, fld.path)
+            if fld.idx in direct and fld.path.startswith(loc + "/"):
+                key = (parent, fld.path[len(loc) + 1:])
+            counts = votes.setdefault(key, Counter())
+            vote = _vote_value(fld.text)
+            if vote:
+                counts[vote] += 1
+            locations.append((rec, fld.idx, fld.path, key))
 
+    inferred = {key: _infer_type(key[1], counts) for key, counts in votes.items()}
     coltypes: dict[str, str] = {}
-    for col in sorted(by_col):
-        votes: Counter[str] = Counter()
-        for val in by_col[col]:
-            v = _vote_value(val)
-            if v is not None:
-                votes[v] += 1
-
-        prior = _header_prior(col)
-        total = sum(votes.values())
-        if total == 0:
-            coltypes[col] = prior or "free_text"
-            continue
-
-        top_type, top_count = votes.most_common(1)[0]
-        # Ambiguous tie (<= 50% or tied top-2) falls back to free_text unless header prior breaks it
-        second_count = votes.most_common(2)[1][1] if len(votes) >= 2 else 0
-        if top_count == second_count:
-            top2 = {t for t, _ in votes.most_common(2)}
-            if top2.issubset({"aadhaar", "abha", "id"}):
-                coltypes[col] = "id"
-            elif prior and votes.get(prior, 0) > 0:
-                coltypes[col] = prior
-            else:
-                coltypes[col] = "free_text"
-            continue
-
-        # Header prior "id" overrides 6-digit "pin" votes (e.g. uhid=412345)
-        if prior == "id" and top_type in {"pin", "id"}:
-            coltypes[col] = "id"
-        elif top_type != "free_text" and top_count / total > 0.5:
-            coltypes[col] = top_type
-        elif prior and votes.get(prior, 0) / total >= 0.3:
-            coltypes[col] = prior
-        elif prior and top_type == "free_text" and total <= 2:
-            coltypes[col] = prior
-        else:
-            coltypes[col] = "free_text"
-
+    for rec, idx, path, key in locations:
+        value_type = inferred[key]
+        rec.meta.setdefault("coltypes_by_idx", {})[idx] = value_type
+        if key[0] is not None or path not in coltypes:
+            coltypes[path] = value_type
     for rec in records:
         rec.meta["coltypes"] = coltypes
     return coltypes

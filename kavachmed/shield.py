@@ -52,7 +52,7 @@ _RE_PKG_INR = re.compile(
     re.I,
 )
 _RE_EPONYM = re.compile(
-    r"\b([A-Z][a-z]+(?:'s|s)?\s+(?:disease|syndrome|palsy|lymphoma|tumor|tumour))\b"
+    r"\b([A-Z][a-z]+(?:'s|s)?\s+(?:disease|syndrome|palsy|lymphoma|tumor|tumour|cases|bacillus))\b"
 )
 _RE_WARD = re.compile(
     r"\b(?:Ward\s*\d+(?:\s*\([A-Za-z]+\))?|Bed\s*\d+|(?:ICU|NICU|PICU|MICU|SICU|OPD|IPD)\b)"
@@ -67,9 +67,22 @@ _RE_ADDR_HINT = re.compile(
     re.I,
 )
 _RE_DISTRICT = re.compile(
-    r"\b(?:District|Dist\.?)[ \t]+[A-Za-z]+(?:[ \t]+[A-Za-z]+)?|(?:जिला)[ \t]+[\u0900-\u097F]+(?:[ \t]+[\u0900-\u097F]+)?",
+    r"\b(?:District|Dist\.?)[ \t]+([A-Za-z]+(?:[ \t]+[A-Za-z]+)?)|(?:जिला)[ \t]+([\u0900-\u097F]+(?:[ \t]+[\u0900-\u097F]+)?)",
     re.I,
 )
+_RE_HOSPITAL = re.compile(
+    r"(?:^|(?<=\n)|(?<=\s-\s)|(?<=\s—\s))[ \t]*"
+    r"(?:(?:[A-Z][a-zA-Z&']*(?:[ \t]+[A-Z][a-zA-Z&']*){0,5}[ \t]+"
+    r"(?:Hospital|Medical\s+(?:College|Centre|Center|Institute)|Health\s+(?:Centre|Center)|Chikitsalaya|Nursing\s+Home))|"
+    r"(?:[\u0900-\u097F]{2,}(?:[ \t]+[\u0900-\u097F]{2,}){0,5}[ \t]+(?:अस्पताल|चिकित्सालय)))"
+)
+_RE_HOSPITAL_INLINE = re.compile(
+    r"\b(?:[A-Z][a-z]+(?:[ \t]+[A-Z][a-z]+){1,4}[ \t]+(?:Mission|Trust|Speciality|Specialty|Sevashram|Care|District|Zila|Memorial|General|Medical)\s+Hospital|"
+    r"[A-Z][a-z]+(?:[ \t]+[A-Z][a-z]+){1,4}[ \t]+(?:Zila\s+)?Chikitsalaya)\b"
+)
+_RE_BATCH_CODE = re.compile(r"\b(?:Vaccine\s+)?Batch\s+No\.?\s*:?\s*[A-Za-z0-9]{4,14}\b", re.I)
+_HOSPITAL_KEYS = frozenset({"hospital", "hospital_name", "facility", "facility_name", "organization.name"})
+_DISTRICT_KEYS = frozenset({"district", "dist", "distt", "zila", "jila", "जिला", "ज़िला"})
 
 _SYMPTOM_HINTS = {
     "fever", "cough", "cold", "pain", "headache", "vomiting", "diarrhea", "diarrhoea",
@@ -204,7 +217,34 @@ def protect(rec: Record, ctx: Context | dict[str, Any]) -> list[Span]:
             _add(spans, rec, fld.idx, m.start(), m.end(), "ward")
 
         # 10. District preservation (B9 policy: keep district)
-        for m in _RE_DISTRICT.finditer(text):
-            _add(spans, rec, fld.idx, m.start(), m.end(), "district")
+        keep_loc = str((ctx.policy.get("location") or {}).get("keep", "district"))
+        if keep_loc == "district":
+            leaf_col = fld.path.rpartition("/")[2].strip().lower()
+            if leaf_col in _DISTRICT_KEYS and text.strip():
+                _add(spans, rec, fld.idx, 0, len(text), "district")
+            for m in _RE_DISTRICT.finditer(text):
+                _add(spans, rec, fld.idx, m.start(), m.end(), "district")
+
+        # 11. Hospital / facility preservation and Vaccine Batch No. code protection
+        leaf_col = fld.path.rpartition("/")[2].strip().lower()
+        if fld.path in {"Organization.name", "facility/name"} or (
+            leaf_col in _HOSPITAL_KEYS
+        ) or (
+            leaf_col == "name" and rec.key[1] == "@meta" and any(
+                f.idx < fld.idx and f.vtype == "key" and f.text.lower() == "facility" for f in rec.fields
+            )
+        ):
+            if text.strip():
+                _add(spans, rec, fld.idx, 0, len(text), "hospital")
+        for m in _RE_HOSPITAL.finditer(text):
+            s = m.start()
+            while s < m.end() and text[s].isspace():
+                s += 1
+            if s < m.end():
+                _add(spans, rec, fld.idx, s, m.end(), "hospital")
+        for m in _RE_HOSPITAL_INLINE.finditer(text):
+            _add(spans, rec, fld.idx, m.start(), m.end(), "hospital")
+        for m in _RE_BATCH_CODE.finditer(text):
+            _add(spans, rec, fld.idx, m.start(), m.end(), "code")
 
     return spans

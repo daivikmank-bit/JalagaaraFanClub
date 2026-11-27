@@ -27,11 +27,13 @@ CLINICAL_KEYS = frozenset({
 _LABEL_WORDS = frozenset({
     "patient", "name", "pt", "age", "sex", "gender", "male", "female", "address", "mobile", "phone",
     "contact", "father", "mother", "husband", "wife", "guardian", "relative", "attendant", "informant",
-    "district", "distt", "village", "tehsil", "state", "pin", "uhid", "mrn", "ipd", "opd", "dob",
+    "kin", "admitted", "discharged", "diagnosis", "labs", "ref", "reg", "seen", "routine",
+    "district", "distt", "zila", "jila", "village", "tehsil", "taluka", "state", "pin", "uhid", "mrn", "ipd", "opd", "dob",
     "date", "visit", "ward", "bed", "no", "id", "nam", "naam", "ling", "umar", "pata", "gaon", "jila",
     # Devanagari age/duration units and labels ("48 वर्ष", "3 दिन से")
-    "वर्ष", "साल", "माह", "महीने", "दिन", "सप्ताह", "आयु", "उम्र", "नाम", "पता", "पुरुष", "महिला",
+    "वर्ष", "साल", "माह", "महीने", "दिन", "सप्ताह", "आयु", "उम्र", "नाम", "पता", "पुरुष", "महिला", "जिला",
 })
+_DISTRICT_KEYS = frozenset({"district", "dist", "distt", "zila", "jila", "जिला", "ज़िला"})
 # Village/locality/address fields: a district-named village ("Gopalganj") is still a village.
 _RE_SUBADDRESS_KEY = re.compile(r"village|gaon|gram|mohalla|locality|street|tehsil|address|addr|pata|patta|पता|गांव|ग्राम", re.I)
 _RE_RESERVED = re.compile(r"\bPSN-[0-9A-Za-z]{6,12}\b|\[[A-Z0-9_/-]{2,20}\]")
@@ -66,7 +68,8 @@ def detect_default_deny(
         if fld.vtype in {"path", "header", "key"}:
             continue
         text = fld.text
-        if fld.path.split("/")[-1].strip().lower() in CLINICAL_KEYS:
+        leaf_key = fld.path.split("/")[-1].strip().lower()
+        if leaf_key in CLINICAL_KEYS or leaf_key in _DISTRICT_KEYS:
             continue
         blocked = list(blocked_by_field.get(fld.idx, []))
         # Reserve whole PSNs and [PLACEHOLDER]s before word tokenization

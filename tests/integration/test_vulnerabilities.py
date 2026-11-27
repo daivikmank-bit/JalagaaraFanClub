@@ -61,12 +61,6 @@ def evasion_run(tmp_path_factory):
         (inp / fname).write_text(content, encoding="utf-8")
     blob = base64.b64encode(base64.b64encode(b"Visitor: Hemlata Pargaien 9811177722").decode().encode()).decode()
     (inp / "b1.json").write_text(json.dumps({"attachment": blob}))
-    outside = base / "outside.txt"
-    outside.write_text("Name: Pooja Mehra 9876511111")
-    try:
-        (inp / "link.txt").symlink_to(outside)
-    except OSError:
-        pass
     p = _run(inp, out, tmp)
     return p, out, tmp
 
@@ -108,9 +102,21 @@ def test_double_base64_payload_scrubbed(evasion_run):
     assert "Pargaien" not in text and "9811177722" not in text
 
 
-def test_symlink_outside_input_never_read_into_output(evasion_run):
-    _, out, _ = evasion_run
-    assert "pooja" not in _all_text(out) and "9876511111" not in _all_text(out)
+def test_symlink_outside_input_never_read_into_output(tmp_path):
+    base = tmp_path
+    inp, out, tmp = base / "in", base / "out", base / "tmp"
+    inp.mkdir()
+    tmp.mkdir()
+    outside = base / "outside.txt"
+    outside.write_text("Name: Pooja Mehra 9876511111")
+    try:
+        (inp / "link.txt").symlink_to(outside)
+    except OSError:
+        pytest.skip("symlink creation unavailable")
+    process = _run(inp, out, tmp)
+    assert process.returncode != 0
+    assert "E_IO" in process.stderr
+    assert not list((out / "sanitized").rglob("*"))
 
 
 def test_xml_sanitised_and_well_formed(evasion_run):

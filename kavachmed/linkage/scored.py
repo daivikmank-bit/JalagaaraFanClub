@@ -101,8 +101,12 @@ def build_scored_clusters(
         for rk in sc.members:
             v4_by_rk[rk] = sc
 
+    frozen_keys = set(strict_result.fuzzy_ineligible)
+    for sc in strict_result.clusters:
+        if frozen_keys.intersection(sc.members):
+            frozen_keys.update(sc.members)
     blocking = generate_candidates(
-        evidences,
+        [ev for ev in evidences if ev.key not in frozen_keys],
         policy=cfg,
         contested_bridges=strict_result.contested_bridges,
         diagnostics=diagnostics,
