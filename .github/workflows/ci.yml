@@ -1,0 +1,27 @@
+name: kavachmed-ci
+on: [push, pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest
+      - name: Unit, contract & integration tests (incl. RFC 5869 vectors)
+        run: python -m pytest -q --import-mode=importlib tests/unit tests/contract tests/integration
+      - name: Determinism check on synthetic fixtures
+        env:
+          RAKSHA_SECRET: ci-practice-secret
+        run: |
+          python main.py --input tests/fixtures/synthetic_input --output /tmp/out1
+          python main.py --input tests/fixtures/synthetic_input --output /tmp/out2
+          diff -r -x report.json /tmp/out1 /tmp/out2
+      - name: Self audit
+        run: python tools/self_audit.py --kit .
+

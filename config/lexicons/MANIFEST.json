@@ -1,0 +1,136 @@
+{
+  "schema_version": "1.0",
+  "entries": [
+    {
+      "path": "clinical/clinical_vocab.txt",
+      "source_name": "Hand-built clinical vocabulary (WHO ICD-10 titles vocabulary, NLEM drug classes, standard specialty/degree names, general Hindi medical glossary terms, record-schema words)",
+      "source_version": "v1",
+      "url": "hand-built (KavachMed team)",
+      "licence": "MIT (project-authored)",
+      "retrieved_date": "2026-11-27",
+      "build_script": "manual",
+      "record_count": 924,
+      "sha256": "bba64c40c3d971c4a91ff9656e668d584ca057eb5cb749fa613844523623ff02"
+    },
+    {
+      "path": "clinical/drugs.txt",
+      "source_name": "MoHFW NLEM / WHO Essential Medicines (seed v1)",
+      "source_version": "NLEM-2022-seed",
+      "url": "https://mohfw.gov.in/",
+      "licence": "Public Domain / CC0",
+      "retrieved_date": "2026-11-26",
+      "build_script": "manual_seed",
+      "record_count": 106
+    },
+    {
+      "path": "clinical/symptoms_conditions.txt",
+      "source_name": "WHO ICD-10 / Clinical Terminology (seed v1)",
+      "source_version": "ICD10-2019-seed",
+      "url": "https://icd.who.int/",
+      "licence": "CC BY-ND 3.0 IGO / Public Clinical Terms",
+      "retrieved_date": "2026-11-26",
+      "build_script": "manual_seed",
+      "record_count": 1980
+    },
+    {
+      "path": "names/generic_names_seed.txt",
+      "source_name": "Synthetic Indian Name Seed (Faker-style v1)",
+      "source_version": "seed-v1",
+      "url": "synthetic",
+      "licence": "MIT",
+      "retrieved_date": "2026-11-26",
+      "build_script": "manual_seed",
+      "record_count": 271
+    },
+    {
+      "path": "names/indianpersona_names.txt",
+      "source_name": "IndianPersona-1M (synthetic; generated with indian-fakedata 2.0.4)",
+      "source_version": "base shard train-00000-of-00010",
+      "url": "https://pypi.org/project/indian-fakedata/",
+      "licence": "MIT",
+      "retrieved_date": "2026-11-27",
+      "build_script": "inline extraction of firstName/lastName/fatherName/motherName/spouseName tokens",
+      "record_count": 468,
+      "sha256": "6618739a90a24872a6efbad729ee43e897165de6e42f77a4672858bab8147ca7"
+    },
+    {
+      "path": "names/names_seed.txt.gz",
+      "source_name": "Public synthetic Indian name lists (Faker-style en_IN/hi_IN)",
+      "source_version": "seed-v1",
+      "url": "https://faker.readthedocs.io/",
+      "licence": "MIT",
+      "retrieved_date": "2026-11-26",
+      "build_script": "tools/build_lgd_lexicons.py",
+      "record_count": 340,
+      "sha256": "546bd467bc8b2f962d3f423b7f2ef57c0f0f6a7caf2cdf85c143aa3165e6675c"
+    },
+    {
+      "path": "places/lgd_districts.tsv",
+      "source_name": "India Data Portal 'lgd-codes' dataset (extracted from Local Government Directory, lgdirectory.gov.in; retrieved by IDP 2023-03-01)",
+      "source_version": "2023-03-01",
+      "url": "https://ckandev.indiadataportal.com/dataset/lgd-codes",
+      "licence": "Open Data Commons Attribution License (ODC-BY); underlying data GODL-India",
+      "retrieved_date": "2026-11-27",
+      "build_script": "tools/build_lgd_full.py",
+      "record_count": 765,
+      "sha256": "6ca4b0294aec4aadc402a31aadd436e2699aedf0b029f31a662acbd4f5506463",
+      "notes": "Devanagari names kept from the earlier hand-entered subset where names match"
+    },
+    {
+      "path": "places/lgd_states.tsv",
+      "source_name": "India Data Portal 'lgd-codes' dataset (extracted from Local Government Directory, lgdirectory.gov.in; retrieved by IDP 2023-03-01)",
+      "source_version": "2023-03-01",
+      "url": "https://ckandev.indiadataportal.com/dataset/lgd-codes",
+      "licence": "Open Data Commons Attribution License (ODC-BY); underlying data GODL-India",
+      "retrieved_date": "2026-11-27",
+      "build_script": "tools/build_lgd_full.py",
+      "record_count": 37,
+      "sha256": "419cc90551fd9230895a6d5e0c36e979748e980d41f3b4fe9b0b975a535cba6a",
+      "notes": "Devanagari names kept from the earlier hand-entered subset where names match"
+    },
+    {
+      "path": "places/lgd_subdistricts.tsv",
+      "source_name": "India Data Portal 'lgd-codes' dataset (extracted from Local Government Directory, lgdirectory.gov.in; retrieved by IDP 2023-03-01)",
+      "source_version": "2023-03-01",
+      "url": "https://ckandev.indiadataportal.com/dataset/lgd-codes",
+      "licence": "Open Data Commons Attribution License (ODC-BY); underlying data GODL-India",
+      "retrieved_date": "2026-11-27",
+      "build_script": "tools/build_lgd_full.py",
+      "record_count": 7077,
+      "sha256": "2b0fd8fdeadebf7943f312ca03624cac2ffa7e1f3824909bfaba42288ec065c9",
+      "notes": "Devanagari names kept from the earlier hand-entered subset where names match"
+    },
+    {
+      "path": "places/lgd_villages.bin",
+      "source_name": "Local Government Directory (LGD) hashed village index",
+      "source_version": "seed-v1",
+      "url": "https://lgdirectory.gov.in/",
+      "licence": "Government Open Data Licence - India (GODL)",
+      "retrieved_date": "2026-11-26",
+      "build_script": "tools/build_lgd_lexicons.py",
+      "record_count": 51,
+      "sha256": "a070cbf03f5463d18e95757014faa465b89cc08ee57346dfcbdbcae9c733812a"
+    },
+    {
+      "path": "safe/safe_words.txt",
+      "source_name": "Derived Safe Set (S \\ N) with policy generic_name_tokens subtracted",
+      "source_version": "v1",
+      "url": "local:build_clinical_lexicons",
+      "licence": "Derived",
+      "retrieved_date": "2026-11-26",
+      "build_script": "tools/build_clinical_lexicons.py",
+      "record_count": 2078
+    },
+    {
+      "path": "safe/safe_words.txt.gz",
+      "source_name": "WHO ICD-10 / NLEM clinical vocabulary + LGD places minus names N",
+      "source_version": "seed-v1",
+      "url": "https://icd.who.int/",
+      "licence": "CC-BY-ND / GODL-India / MIT",
+      "retrieved_date": "2026-11-26",
+      "build_script": "tools/build_lgd_lexicons.py",
+      "record_count": 1012,
+      "sha256": "f7d08b684ee49d65bda0b74f42a8f3419922838268286a431a8f8051e1994634"
+    }
+  ]
+}

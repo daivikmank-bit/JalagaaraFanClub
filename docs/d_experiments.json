@@ -1,0 +1,240 @@
+{
+  "E2_age_loc_dob": [
+    {
+      "age_band_years": 5,
+      "location_level": "village",
+      "dob_mode": "suppress",
+      "k_eq_1_share": 0.8208,
+      "k_lt_5_share": 1.0,
+      "generalization_proxy": 0.95
+    },
+    {
+      "age_band_years": 5,
+      "location_level": "tehsil",
+      "dob_mode": "suppress",
+      "k_eq_1_share": 0.6625,
+      "k_lt_5_share": 1.0,
+      "generalization_proxy": 0.85
+    },
+    {
+      "age_band_years": 5,
+      "location_level": "district",
+      "dob_mode": "suppress",
+      "k_eq_1_share": 0.4125,
+      "k_lt_5_share": 0.9583,
+      "generalization_proxy": 0.8
+    },
+    {
+      "age_band_years": 5,
+      "location_level": "state",
+      "dob_mode": "suppress",
+      "k_eq_1_share": 0.0042,
+      "k_lt_5_share": 0.1083,
+      "generalization_proxy": 0.65
+    },
+    {
+      "age_band_years": 10,
+      "location_level": "village",
+      "dob_mode": "suppress",
+      "k_eq_1_share": 0.6917,
+      "k_lt_5_share": 1.0,
+      "generalization_proxy": 0.9
+    },
+    {
+      "age_band_years": 10,
+      "location_level": "tehsil",
+      "dob_mode": "suppress",
+      "k_eq_1_share": 0.4958,
+      "k_lt_5_share": 1.0,
+      "generalization_proxy": 0.8
+    },
+    {
+      "age_band_years": 10,
+      "location_level": "district",
+      "dob_mode": "suppress",
+      "k_eq_1_share": 0.2083,
+      "k_lt_5_share": 0.8208,
+      "generalization_proxy": 0.75
+    },
+    {
+      "age_band_years": 10,
+      "location_level": "state",
+      "dob_mode": "suppress",
+      "k_eq_1_share": 0.0,
+      "k_lt_5_share": 0.0333,
+      "generalization_proxy": 0.6
+    },
+    {
+      "age_band_years": 20,
+      "location_level": "village",
+      "dob_mode": "suppress",
+      "k_eq_1_share": 0.4958,
+      "k_lt_5_share": 0.9167,
+      "generalization_proxy": 0.8
+    },
+    {
+      "age_band_years": 20,
+      "location_level": "tehsil",
+      "dob_mode": "suppress",
+      "k_eq_1_share": 0.2917,
+      "k_lt_5_share": 0.8,
+      "generalization_proxy": 0.7
+    },
+    {
+      "age_band_years": 20,
+      "location_level": "district",
+      "dob_mode": "suppress",
+      "k_eq_1_share": 0.0917,
+      "k_lt_5_share": 0.4625,
+      "generalization_proxy": 0.65
+    },
+    {
+      "age_band_years": 20,
+      "location_level": "state",
+      "dob_mode": "suppress",
+      "k_eq_1_share": 0.0,
+      "k_lt_5_share": 0.0333,
+      "generalization_proxy": 0.5
+    }
+  ],
+  "E3_shift_range": [
+    {
+      "shift_range": "+/-180 (allows 0/small)",
+      "min_abs_days": 1,
+      "a5_offset_risk": "higher_near_0"
+    },
+    {
+      "shift_range": "+/-[30,365] per-family",
+      "min_abs_days": 30,
+      "a5_offset_risk": "global_recovery_0"
+    }
+  ],
+  "E4_k_dx": [
+    {
+      "k_dx": 2,
+      "patients_rolled_up": 2,
+      "total_patients": 11
+    },
+    {
+      "k_dx": 3,
+      "patients_rolled_up": 4,
+      "total_patients": 11
+    },
+    {
+      "k_dx": 5,
+      "patients_rolled_up": 11,
+      "total_patients": 11
+    }
+  ],
+  "E5_amplification": [
+    {
+      "amplification": 2.0,
+      "clusters_total": 10,
+      "min_est_k": 4.0,
+      "median_est_k": 8.0,
+      "escalated_clusters": 2,
+      "max_qi_kinds_observed": 5
+    },
+    {
+      "amplification": 4.0,
+      "clusters_total": 10,
+      "min_est_k": 8.0,
+      "median_est_k": 16.0,
+      "escalated_clusters": 0,
+      "max_qi_kinds_observed": 5
+    },
+    {
+      "amplification": 6.0,
+      "clusters_total": 10,
+      "min_est_k": 12.0,
+      "median_est_k": 24.0,
+      "escalated_clusters": 0,
+      "max_qi_kinds_observed": 5
+    }
+  ],
+  "E11_layer_b_ablation": {
+    "canaries_planted": 3,
+    "layer_b_off_survivors": 3,
+    "layer_b_on_survivors": 0
+  },
+  "E12_filename_dates": {
+    "date_or_num_filenames": 125,
+    "rename_date_filenames_default": false
+  },
+  "E15_uniqueness_curve": [
+    {
+      "attributes": "1: sex",
+      "unique_share": 0.0,
+      "k_lt_5_share": 0.0
+    },
+    {
+      "attributes": "2: sex + age_10yr",
+      "unique_share": 0.0,
+      "k_lt_5_share": 0.0333
+    },
+    {
+      "attributes": "3: sex + age_10yr + district",
+      "unique_share": 0.2083,
+      "k_lt_5_share": 0.8208
+    },
+    {
+      "attributes": "4: sex + age_10yr + district + tehsil",
+      "unique_share": 0.4958,
+      "k_lt_5_share": 1.0
+    },
+    {
+      "attributes": "5: sex + age_10yr + district + tehsil + village",
+      "unique_share": 0.6917,
+      "k_lt_5_share": 1.0
+    },
+    {
+      "attributes": "6: sex + age_exact + district + pin",
+      "unique_share": 0.9583,
+      "k_lt_5_share": 1.0
+    }
+  ],
+  "E17_lgd_ablation": {
+    "district_fields_seen": 93,
+    "lgd_matched_count": 93,
+    "lgd_match_rate": 1.0,
+    "without_lgd_match_rate": 0.0
+  },
+  "E19_layer_b_overflag": {
+    "clean_alpha_tokens": 165,
+    "b1_flagged_clean_tokens": 30,
+    "over_flag_rate": 0.1818
+  },
+  "redteam_raw": {
+    "patients_evaluated": 48,
+    "records_extracted": 822,
+    "A1_direct_exposure": 1.0,
+    "A3_record_linkage": 0.6867,
+    "A4_profile_reid": 1.0,
+    "A5_targeted_success": 1.0,
+    "A5_global_shift_recovered": 0,
+    "A5_decoy_false_positives": 0
+  },
+  "redteam_sanitized": {
+    "patients_evaluated": 48,
+    "records_extracted": 821,
+    "A1_direct_exposure": 0.0,
+    "A3_record_linkage": 0.0076,
+    "A4_profile_reid": 0.0,
+    "A5_targeted_success": 0.0,
+    "A5_global_shift_recovered": 0,
+    "A5_decoy_false_positives": 0
+  },
+  "pipeline_counts": {
+    "files_total": 200,
+    "files_sanitized": 194,
+    "files_quarantined": 6,
+    "records_processed": 823,
+    "identifiers_detected": 26702,
+    "records_linked": 0,
+    "records_generalized": 19,
+    "records_suppressed": 0,
+    "records_quarantined": 0
+  },
+  "pipeline_timing_s": 2.48,
+  "pipeline_peak_rss_mb": 36.2
+}

@@ -1,0 +1,5 @@
+regex==2026.11.25
+rapidfuzz==3.14.6
+pyyaml==6.0.4
+python-crfsuite==0.9.12
+

@@ -1,0 +1,96 @@
+# KavachMed v5 privacy and pipeline policy (single source of truth).
+# Sections owned per imp_plan-final.md §3.4:
+#   runtime, security -> A
+#   detect            -> B
+#   linkage           -> C
+#   dates, age, dob, location, controller, privacy, compliance, residual.* -> D
+
+runtime:
+  max_json_depth: 4000
+  residual_passes: 3
+  psn_chars: 8
+  reference_doc_byte_copy: true
+
+dates:
+  shift_min_days: 30
+  shift_max_days: 365
+  default_order: dmy
+  partial_year: nearest_or_ref
+  dataset_ref_year: 2026
+
+age:
+  band_years: 10
+  top_band: "85+"
+  pool_lattice: [0, 5, 10, 18, 30, 40, 50, 60, 70, 85]
+  truthful: true
+
+dob:
+  mode: suppress   # suppress | year
+
+location:
+  keep: district   # district | state | none
+  pin: none        # none | pin3
+  remove: [village, tehsil, house, ward, mohalla, landmark]
+
+controller:
+  enabled: true
+  assumed_amplification: 4.0
+  k_target: 20   # sweep 2026-11-27 (ATTACKS.md-faithful red team): A4 12.5% -> 2.1%, medical 99.4%, F0.5 0.98
+  k_dx: 3
+  max_qi_kinds: 6
+  uniqueness_target: 0.25
+  ladder: [age20, state, dx_rollup, suppress_qi]
+
+linkage:
+  tau_high_bits: 12.0
+  tau_low_bits: 6.0
+  max_component_size: 200
+  match_weight_units: log2
+  vetoes: [sex, age, relative]
+  generic_name_tokens: [devi, kumar, singh, kaur, md, mohd, ji, sahab, bhai, begum]
+
+detect:
+  stack: "recall_first"
+  arbiter_threshold: 0.35
+  accept_name: 0.35
+  crf_weight: 0.25
+  vehicle_plates: true
+  doctor_reg_numbers: remove_digits
+  label_induction:
+    min_values: 3
+    min_share: 0.6
+  default_deny:
+    enabled: true
+    score: 0.45
+    min_letters: 2
+    lowercase_gazetteer_hits: true
+
+privacy:
+  age_band_years: 10
+  date_shift_min_days: 30
+  date_shift_max_days: 365
+  min_group_size: 5
+  rename_date_filenames: false
+
+residual:
+  layer_b: true
+  readback: true
+  b2_min_digits: 6
+  b2_long_digits: 10
+  doctor_span_exempt: registry_full_name_only
+
+security:
+  min_secret_bytes: 1          # Q12: fail closed only on unset or blank
+  min_distinct_bytes: 1
+  pbkdf2_iterations: 600000
+  pbkdf2_salt: "kavachmed/v5/stretch"
+  hkdf_version: "v5"
+  log: counts_only
+  quarantine_vault: false
+  kdf_version: "kavachmed/v5"
+  psn_chars: 8
+  dumpable: false
+  reexec_scrub: false
+
+compliance:
+  terminology: "de-identified"

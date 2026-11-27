@@ -1,0 +1,90 @@
+# Hand-built general clinical vocabulary (English, Hinglish, Devanagari) + Hindi function words.
+# Source: general medical knowledge (WHO ICD-10 chapter/titles vocabulary, NLEM drug classes,
+# standard specialty and degree names, common Hindi medical glossary terms). Never derived
+# from dev/ data. Name-gazetteer tokens are subtracted at load time (safe set S\N, FR-D11).
+# --- specialties / departments / settings
+medicine general surgery orthopaedics orthopedics paediatrics pediatrics gynaecology gynecology obstetrics
+cardiology pulmonology nephrology neurology gastroenterology endocrinology dermatology psychiatry oncology
+urology ophthalmology ent radiology pathology anaesthesia anesthesia emergency casualty icu nicu picu
+opd ipd ward bed unit department dept clinic hospital lab laboratory pharmacy dispensary maternity labour
+# --- degrees / roles
+md mbbs ms dnb dm mch frcs mrcp bams bhms bds mds dgo dch dcp phd consultant resident physician surgeon
+nurse sister staff doctor attending registrar intern ashaworker anm
+# --- anatomy
+abdomen abdominal chest head neck back spine lumbar cervical thoracic kidney renal liver hepatic lung
+pulmonary heart cardiac brain cerebral stomach gastric intestine bowel colon rectum anal bladder urinary
+uterus uterine ovary ovarian breast prostate thyroid adrenal pancreas pancreatic spleen splenic gall
+gallbladder eye ocular ear nose throat skin joint knee hip shoulder ankle wrist bone muscle nerve blood
+vessel artery vein lymph node tract site upper lower left right bilateral
+# --- conditions / adjectives
+acute chronic severe mild moderate stage type grade primary secondary essential unspecified specified
+without with complications complicated uncomplicated infection infectious infective inflammation
+disease disorder syndrome deficiency failure insufficiency injury fracture lesion tumour tumor mass
+cancer carcinoma malignant benign neoplasm ulcer stone calculus obstruction hernia inguinal umbilical
+diabetes mellitus hypertension hypertensive hypothyroidism hyperthyroidism asthma bronchial pneumonia
+tuberculosis pulmonary typhoid malaria dengue chikungunya cholera jaundice hepatitis anaemia anemia
+iron folate vitamin deficiency dehydration diarrhoea diarrhea dysentery gastroenteritis colitis
+vomiting nausea fever cough cold headache giddiness dizziness weakness fatigue pain ache burning
+swelling oedema edema rash itching breathlessness wheeze palpitations syncope seizure convulsion
+stroke paralysis sepsis shock bleeding haemorrhage hemorrhage cataract glaucoma otitis sinusitis
+tonsillitis pharyngitis appendicitis cholecystitis pancreatitis cirrhosis nephropathy neuropathy
+retinopathy arthritis osteoarthritis rheumatoid gout migraine epilepsy depression anxiety psychosis
+leprosy filariasis kala azar leishmaniasis scrub typhus brucellosis covid influenza viral bacterial
+fungal parasitic worm infestation abscess cellulitis wound burn bite snake dog
+pregnancy pregnant antenatal postnatal delivery caesarean cesarean section normal vaginal preterm
+abortion miscarriage anc pnc lscs
+# --- procedures
+surgery operation procedure repair resection excision biopsy transplant dialysis haemodialysis
+hemodialysis catheterisation catheterization angiography angioplasty stenting bypass graft
+phacoemulsification lens implant appendicectomy appendectomy cholecystectomy hysterectomy
+laparoscopic laparotomy whipple pancreaticoduodenectomy tonsillectomy circumcision debridement
+suturing dressing plaster cast reduction fixation replacement arthroplasty scan xray ultrasound
+usg mri ecg echo endoscopy colonoscopy bronchoscopy
+# --- labs / vitals
+haemoglobin hemoglobin platelet platelets count total differential random fasting postprandial blood
+sugar glucose creatinine urea bilirubin albumin protein cholesterol triglycerides sodium potassium
+chloride calcium wbc rbc esr crp hba1c tsh t3 t4 sgot sgpt alt ast alkaline phosphatase culture
+sensitivity smear widal ns1 igm igg rapid test result value unit range reference normal high low
+pressure pulse temperature temp spo2 saturation respiratory rate weight height bmi mmhg
+# --- medicines / forms / routes / frequency
+tab tablet cap capsule inj injection syp syrup susp suspension oint ointment drops cream gel inhaler
+sachet ors iv im sc oral topical dose doses strength mg mcg ml gm iu units daily od bd tds qid hs
+sos stat prn once twice thrice morning night after before food meals each loose stool stools days
+weeks months years continue stop review follow advice advised
+paracetamol ferrous sulphate sulfate fumarate folic acid zinc calcium cefixime ceftriaxone amoxicillin
+clavulanate azithromycin doxycycline ciprofloxacin ofloxacin metronidazole albendazole ivermectin
+artesunate chloroquine primaquine isoniazid rifampicin pyrazinamide ethambutol metformin glimepiride
+insulin amlodipine telmisartan losartan atenolol metoprolol ramipril enalapril atorvastatin aspirin
+clopidogrel pantoprazole omeprazole ranitidine ondansetron domperidone salbutamol budesonide
+prednisolone hydrocortisone dexamethasone levothyroxine thyroxine furosemide spironolactone
+diclofenac ibuprofen tramadol cetirizine levocetirizine montelukast oxytocin magnesium
+# --- record words
+discharge summary admission admitted diagnosis diagnoses provisional final history examination
+findings investigations treatment management plan condition stable improved referred transferred
+complaint complaints presenting known case of since patient report reports date time visit
+# --- Hinglish clinical / function words
+bukhar khansi dard sir pet kamzori chakkar ulti dast jukam saans neend sugar bp dawai dawa ilaj
+jaanch report din hafte mahine saal se ko ka ki ke hai hain tha thi nahi nahin theek aur ya bhi
+ho gaya gayi raha rahi raat subah shaam khana pani
+# --- Devanagari: function words
+से में की का के को है हैं था थी थे और या भी पर तक लिए नहीं ने एक दो तीन चार पांच दिन रात सुबह शाम
+हफ्ते महीने साल वर्ष बार बाद पहले साथ हो गया गई रहा रही
+# --- Devanagari: clinical
+बुखार खांसी खाँसी दर्द सिरदर्द पेट पेशाब संक्रमण टीबी तपेदिक फेफड़ों फेफड़े दमा मधुमेह शुगर
+रक्तचाप उच्च निम्न दस्त उल्टी कमजोरी चक्कर सांस साँस जुकाम सर्दी मलेरिया डेंगू टाइफाइड पीलिया
+गुर्दा गुर्दे किडनी हृदय दिल कैंसर गांठ सूजन घाव चोट हड्डी फ्रैक्चर ऑपरेशन जांच जाँच रिपोर्ट दवा दवाई
+गोली इंजेक्शन सिरप भर्ती छुट्टी डॉक्टर अस्पताल वार्ड मरीज रोगी इलाज उपचार निदान खून रक्त प्लेटलेट
+हीमोग्लोबिन काला अज़ार अजार गर्भावस्था प्रसव मोतियाबिंद आँख आंख कान नाक गला त्वचा
+# --- Devanagari general / transliterated clinical terms
+पुरानी पुराना नई नया बीमारी रोग समस्या आना जाना होना लगना होता होती बढ़ना कम ज्यादा तेज़ हल्का
+सीओपीडी डायबिटीज़ डायबिटीज टाइप थायराइड बीपी एनीमिया अस्थमा निमोनिया
+# --- record schema / header words (column and key names are schema, not PII)
+id no number reg registration registered uhid mrn ipd opd adm admission patient patients name names
+first last middle full given family surname gender sex age dob birth relation relationship relative
+guardian father mother husband wife spouse son daughter attendant informant contact phone mobile tel
+email address street city town zip pin pincode code district state country village mohalla tehsil
+taluka block post landmark house aadhaar aadhar abha pan policy pmjay claim bill invoice payer insurer
+package procedure amount inr status sample collected reported received test tests result results unit
+units range ref reference doctor consultant notes note remarks comments source path exported export
+by on at from to of the in for and or yyyy mm dd hh time stamp timestamp created updated version
+meta metadata record records row rows file files data value values type kind category visit visits

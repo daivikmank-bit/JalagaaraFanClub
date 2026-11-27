@@ -1,0 +1,766 @@
+district_code	state_code	district_name	district_name_hi
+001	01	Anantnag	
+002	01	Budgam	
+003	01	Baramulla	
+004	01	Doda	
+005	01	Jammu	जम्मू
+007	01	Kathua	
+008	01	Kupwara	
+010	01	Poonch	
+011	01	Pulwama	
+012	01	Rajouri	
+013	01	Srinagar	श्रीनगर
+014	01	Udhampur	
+620	01	Kishtwar	
+621	01	Ramban	
+622	01	Kulgam	
+623	01	Bandipora	
+624	01	Samba	
+625	01	Shopian	
+626	01	Ganderbal	
+627	01	Reasi	
+015	02	Bilaspur	
+016	02	Chamba	
+017	02	Hamirpur	
+018	02	Kangra	
+019	02	Kinnaur	
+020	02	Kullu	
+021	02	Lahul and Spiti	
+022	02	Mandi	
+023	02	Shimla	शिमला
+024	02	Sirmaur	
+025	02	Solan	
+026	02	Una	
+027	03	Amritsar	अमृतसर
+028	03	Bathinda	बठिंडा
+029	03	Faridkot	
+030	03	Fatehgarh Sahib	
+031	03	Ferozepur	
+032	03	Gurdaspur	
+033	03	Hoshiarpur	
+034	03	Jalandhar	जालंधर
+035	03	Kapurthala	
+036	03	Ludhiana	लुधियाना
+037	03	Mansa	
+038	03	Moga	
+039	03	Sri Muktsar Sahib	
+040	03	Shahid Bhagat Singh Nagar	
+041	03	Patiala	पटियाला
+042	03	Rupnagar	
+043	03	Sangrur	
+605	03	Barnala	
+608	03	S.a.s Nagar	
+609	03	Tarn Taran	
+651	03	Fazilka	
+662	03	Pathankot	
+737	03	Malerkotla	
+044	04	Chandigarh	चंडीगढ़
+045	05	Almora	
+046	05	Bageshwar	
+047	05	Chamoli	
+048	05	Champawat	
+049	05	Dehradun	देहरादून
+050	05	Haridwar	हरिद्वार
+051	05	Nainital	नैनीताल
+052	05	Pauri Garhwal	
+053	05	Pithoragarh	
+054	05	Rudra Prayag	
+055	05	Tehri Garhwal	
+056	05	Udam Singh Nagar	
+057	05	Uttar Kashi	
+058	06	Ambala	अंबाला
+059	06	Bhiwani	
+060	06	Faridabad	फरीदाबाद
+061	06	Fatehabad	
+062	06	Gurugram	गुरुग्राम
+063	06	Hisar	हिसार
+064	06	Jhajjar	
+065	06	Jind	
+066	06	Kaithal	
+067	06	Karnal	करनाल
+068	06	Kurukshetra	
+069	06	Mahendragarh	
+070	06	Panchkula	
+071	06	Panipat	पानीपत
+072	06	Rewari	
+073	06	Rohtak	रोहतक
+074	06	Sirsa	
+075	06	Sonipat	
+076	06	Yamunanagar	
+604	06	Nuh	
+619	06	Palwal	
+701	06	Charki Dadri	
+077	07	Central	
+078	07	East	
+079	07	New Delhi	नई दिल्ली
+080	07	North	
+081	07	North East	
+082	07	North West	
+083	07	South	
+084	07	South West	
+085	07	West	
+670	07	South East	
+671	07	Shahdara	
+086	08	Ajmer	अजमेर
+087	08	Alwar	अलवर
+088	08	Banswara	
+089	08	Baran	
+090	08	Barmer	
+091	08	Bharatpur	
+092	08	Bhilwara	
+093	08	Bikaner	बीकानेर
+094	08	Bundi	
+095	08	Chittorgarh	
+096	08	Churu	
+097	08	Dausa	
+098	08	Dholpur	
+099	08	Dungarpur	
+100	08	Ganganagar	
+101	08	Hanumangarh	
+102	08	Jaipur	जयपुर
+103	08	Jaisalmer	
+104	08	Jalore	
+105	08	Jhalawar	
+106	08	Jhunjhunu	
+107	08	Jodhpur	जोधपुर
+108	08	Karauli	
+109	08	Kota	कोटा
+110	08	Nagaur	
+111	08	Pali	
+112	08	Rajsamand	
+113	08	Sawai Madhopur	
+114	08	Sikar	
+115	08	Sirohi	
+116	08	Tonk	
+117	08	Udaipur	उदयपुर
+629	08	Pratapgarh	
+118	09	Agra	आगरा
+119	09	Aligarh	अलीगढ़
+120	09	Prayagraj	प्रयागराज
+121	09	Ambedkar Nagar	अंबेडकर नगर
+122	09	Auraiya	औरैया
+123	09	Azamgarh	आजमगढ़
+124	09	Baghpat	बागपत
+125	09	Bahraich	बहराइच
+126	09	Ballia	बलिया
+127	09	Balrampur	बलरामपुर
+128	09	Banda	बांदा
+129	09	Barabanki	बाराबंकी
+130	09	Bareilly	बरेली
+131	09	Basti	बस्ती
+132	09	Bijnor	बिजनौर
+133	09	Budaun	बदायूं
+134	09	Bulandshahr	बुलंदशहर
+135	09	Chandauli	चंदौली
+136	09	Chitrakoot	चित्रकूट
+137	09	Deoria	देवरिया
+138	09	Etah	एटा
+139	09	Etawah	इटावा
+140	09	Ayodhya	अयोध्या
+141	09	Farrukhabad	फर्रुखाबाद
+142	09	Fatehpur	फतेहपुर
+143	09	Firozabad	फिरोजाबाद
+144	09	Gautam Buddha Nagar	गौतम बुद्ध नगर
+145	09	Ghaziabad	गाजियाबाद
+146	09	Ghazipur	गाजीपुर
+147	09	Gonda	गोंडा
+148	09	Gorakhpur	गोरखपुर
+149	09	Hamirpur	हमीरपुर
+150	09	Hardoi	हरदोई
+151	09	Jalaun	जालौन
+152	09	Jaunpur	जौनपुर
+153	09	Jhansi	झांसी
+154	09	Amroha	अमरोहा
+155	09	Kannauj	कन्नौज
+156	09	Kanpur Dehat	कानपुर देहात
+157	09	Kanpur Nagar	कानपुर नगर
+158	09	Kaushambi	कौशाम्बी
+159	09	Kheri	खीरी
+160	09	Kushi Nagar	
+161	09	Lalitpur	ललितपुर
+162	09	Lucknow	लखनऊ
+163	09	Hathras	हाथरस
+164	09	Maharajganj	महराजगंज
+165	09	Mahoba	महोबा
+166	09	Mainpuri	मैनपुरी
+167	09	Mathura	मथुरा
+168	09	Mau	मऊ
+169	09	Meerut	मेरठ
+170	09	Mirzapur	मिर्जापुर
+171	09	Moradabad	मुरादाबाद
+172	09	Muzaffarnagar	मुजफ्फरनगर
+173	09	Pilibhit	पीलीभीत
+174	09	Pratapgarh	प्रतापगढ़
+175	09	Rae Bareli	रायबरेली
+176	09	Rampur	रामपुर
+177	09	Saharanpur	सहारनपुर
+178	09	Sant Kabeer Nagar	
+179	09	Bhadohi	भदोही
+180	09	Shahjahanpur	शाहजहांपुर
+181	09	Shravasti	श्रावस्ती
+182	09	Siddharth Nagar	
+183	09	Sitapur	सीतापुर
+184	09	Sonbhadra	सोनभद्र
+185	09	Sultanpur	सुल्तानपुर
+186	09	Unnao	उन्नाव
+187	09	Varanasi	वाराणसी
+633	09	Kasganj	कासगंज
+640	09	Amethi	अमेठी
+659	09	Sambhal	संभल
+660	09	Shamli	शामली
+661	09	Hapur	हापुड़
+188	10	Araria	
+189	10	Aurangabad	
+190	10	Banka	
+191	10	Begusarai	बेगूसराय
+192	10	Bhagalpur	भागलपुर
+193	10	Bhojpur	
+194	10	Buxar	
+195	10	Darbhanga	दरभंगा
+196	10	Gaya	गया
+197	10	Gopalganj	
+198	10	Jamui	
+199	10	Jehanabad	
+200	10	Kaimur (bhabua)	
+201	10	Katihar	
+202	10	Khagaria	
+203	10	Kishanganj	
+204	10	Lakhisarai	
+205	10	Madhepura	
+206	10	Madhubani	
+207	10	Munger	
+208	10	Muzaffarpur	मुजफ्फरपुर
+209	10	Nalanda	नालंदा
+210	10	Nawada	
+211	10	Pashchim Champaran	
+212	10	Patna	पटना
+213	10	Purbi Champaran	
+214	10	Purnia	पूर्णिया
+215	10	Rohtas	
+216	10	Saharsa	
+217	10	Samastipur	
+218	10	Saran	सारण
+219	10	Sheikhpura	
+220	10	Sheohar	
+221	10	Sitamarhi	
+222	10	Siwan	
+223	10	Supaul	
+224	10	Vaishali	वैशाली
+611	10	Arwal	
+225	11	Gangtok	
+226	11	Mangan	
+227	11	Namchi	
+228	11	Gyalshing	
+741	11	Pakyong	
+742	11	Soreng	
+229	12	Changlang	
+230	12	Dibang Valley	
+231	12	East Kameng	
+232	12	East Siang	
+233	12	Kurung Kumey	
+234	12	Lohit	
+235	12	Lower Dibang Valley	
+236	12	Lower Subansiri	
+237	12	Papum Pare	
+238	12	Tawang	
+239	12	Tirap	
+240	12	Upper Siang	
+241	12	Upper Subansiri	
+242	12	West Kameng	
+243	12	West Siang	
+628	12	Anjaw	
+666	12	Longding	
+677	12	Kra Daadi	
+678	12	Namsai	
+679	12	Siang	
+718	12	Kamle	
+719	12	Lower Siang	
+723	12	Pakke Kessang	
+724	12	Leparada	
+725	12	Shi Yomi	
+244	13	Dimapur	
+245	13	Kohima	
+246	13	Mokokchung	
+247	13	Mon	
+248	13	Phek	
+249	13	Tuensang	
+250	13	Wokha	
+251	13	Zunheboto	
+613	13	Peren	
+614	13	Kiphire	
+615	13	Longleng	
+736	13	Noklak	
+757	13	Tseminyu	
+758	13	Chumoukedima	
+764	13	Niuland	
+765	13	Shamator	
+252	14	Bishnupur	
+253	14	Chandel	
+254	14	Churachandpur	
+255	14	Imphal East	
+256	14	Imphal West	
+257	14	Senapati	
+258	14	Tamenglong	
+259	14	Thoubal	
+260	14	Ukhrul	
+711	14	Kakching	
+712	14	Kangpokpi	
+713	14	Jiribam	
+714	14	Noney	
+715	14	Pherzawl	
+716	14	Tengnoupal	
+717	14	Kamjong	
+261	15	Aizawl	
+262	15	Champhai	
+263	15	Kolasib	
+264	15	Lawngtlai	
+265	15	Lunglei	
+266	15	Mamit	
+267	15	Saiha	
+268	15	Serchhip	
+726	15	Hnahthial	
+727	15	Saitual	
+728	15	Khawzawl	
+269	16	Dhalai	
+270	16	North Tripura	
+271	16	South Tripura	
+272	16	West Tripura	
+652	16	Khowai	
+653	16	Sepahijala	
+654	16	Gomati	
+655	16	Unakoti	
+273	17	East Garo Hills	
+274	17	East Khasi Hills	
+275	17	West Jaintia Hills	
+276	17	Ri Bhoi	
+277	17	South Garo Hills	
+278	17	West Garo Hills	
+279	17	West Khasi Hills	
+656	17	North Garo Hills	
+657	17	East Jaintia Hills	
+658	17	South West Khasi Hills	
+663	17	South West Garo Hills	
+740	17	Eastern West Khasi Hills	
+280	18	Barpeta	
+281	18	Bongaigaon	
+282	18	Cachar	
+283	18	Darrang	
+284	18	Dhemaji	
+285	18	Dhubri	
+286	18	Dibrugarh	
+287	18	Goalpara	
+288	18	Golaghat	
+289	18	Hailakandi	
+290	18	Jorhat	
+291	18	Kamrup	
+292	18	Karbi Anglong	
+293	18	Karimganj	
+294	18	Kokrajhar	
+295	18	Lakhimpur	
+296	18	Marigaon	
+297	18	Nagaon	
+298	18	Nalbari	
+299	18	Dima Hasao	
+300	18	Sivasagar	
+301	18	Sonitpur	
+302	18	Tinsukia	
+612	18	Chirang	
+616	18	Baksa	
+617	18	Udalguri	
+618	18	Kamrup Metro	
+705	18	Biswanath	
+706	18	Majuli	
+707	18	South Salmara Mancachar	
+708	18	Charaideo	
+709	18	Hojai	
+710	18	West Karbi Anglong	
+739	18	Bajali	
+756	18	Tamulpur	
+303	19	24 Paraganas North	
+304	19	24 Paraganas South	
+305	19	Bankura	
+306	19	Purba Bardhaman	
+307	19	Birbhum	
+308	19	Coochbehar	
+309	19	Darjeeling	दार्जिलिंग
+310	19	Dinajpur Dakshin	
+311	19	Dinajpur Uttar	
+312	19	Hooghly	
+313	19	Howrah	हावड़ा
+314	19	Jalpaiguri	
+315	19	Kolkata	कोलकाता
+316	19	Maldah	
+317	19	Medinipur East	
+318	19	Medinipur West	
+319	19	Murshidabad	
+320	19	Nadia	
+321	19	Purulia	
+664	19	Alipurduar	
+702	19	Kalimpong	
+703	19	Jhargram	
+704	19	Paschim Bardhaman	
+322	20	Bokaro	
+323	20	Chatra	
+324	20	Deoghar	
+325	20	Dhanbad	धनबाद
+326	20	Dumka	
+327	20	East Singhbum	
+328	20	Garhwa	
+329	20	Giridih	
+330	20	Godda	
+331	20	Gumla	
+332	20	Hazaribagh	
+333	20	Jamtara	
+334	20	Koderma	
+335	20	Latehar	
+336	20	Lohardaga	
+337	20	Pakur	
+338	20	Palamu	
+339	20	Ranchi	रांची
+340	20	Sahebganj	
+341	20	Saraikela Kharsawan	
+342	20	Simdega	
+343	20	West Singhbhum	
+606	20	Khunti	
+607	20	Ramgarh	
+344	21	Anugul	
+345	21	Balangir	
+346	21	Baleshwar	
+347	21	Bargarh	
+348	21	Bhadrak	
+349	21	Boudh	
+350	21	Cuttack	कटक
+351	21	Deogarh	
+352	21	Dhenkanal	
+353	21	Gajapati	
+354	21	Ganjam	
+355	21	Jagatsinghapur	
+356	21	Jajapur	
+357	21	Jharsuguda	
+358	21	Kalahandi	
+359	21	Kandhamal	
+360	21	Kendrapara	
+361	21	Kendujhar	
+362	21	Khordha	खोर्धा
+363	21	Koraput	
+364	21	Malkangiri	
+365	21	Mayurbhanj	
+366	21	Nabarangpur	
+367	21	Nayagarh	
+368	21	Nuapada	
+369	21	Puri	पुरी
+370	21	Rayagada	
+371	21	Sambalpur	
+372	21	Sonepur	
+373	21	Sundargarh	
+374	22	Bastar	
+375	22	Bilaspur	बिलासपुर
+376	22	Dantewada	
+377	22	Dhamtari	
+378	22	Durg	
+379	22	Janjgir-champa	
+380	22	Jashpur	
+381	22	Kanker	
+382	22	Kabirdham	
+383	22	Korba	
+384	22	Korea	
+385	22	Mahasamund	
+386	22	Raigarh	
+387	22	Raipur	रायपुर
+388	22	Rajnandgaon	
+389	22	Surguja	
+636	22	Bijapur	
+637	22	Narayanpur	
+642	22	Sukma	
+643	22	Kondagaon	
+644	22	Baloda Bazar	
+645	22	Gariyaband	
+646	22	Balod	
+647	22	Mungeli	
+648	22	Surajpur	
+649	22	Balrampur	
+650	22	Bemetara	
+734	22	Gaurella Pendra Marwahi	
+759	22	Khairgarh Chhuikhadan Gandai	
+760	22	Manendragarh Chirimiri Bharatpur	
+761	22	Mohla Manpur Ambagarh Chouki	
+762	22	Sakti	
+763	22	Sarangarh Bilaigarh	
+390	23	Anuppur	
+391	23	Ashoknagar	
+392	23	Balaghat	
+393	23	Barwani	
+394	23	Betul	
+395	23	Bhind	
+396	23	Bhopal	भोपाल
+397	23	Burhanpur	
+398	23	Chhatarpur	
+399	23	Chhindwara	
+400	23	Damoh	
+401	23	Datia	
+402	23	Dewas	
+403	23	Dhar	
+404	23	Dindori	
+405	23	East Nimar	
+406	23	Guna	
+407	23	Gwalior	ग्वालियर
+408	23	Harda	
+409	23	Narmadapuram	
+410	23	Indore	इंदौर
+411	23	Jabalpur	जबलपुर
+412	23	Jhabua	
+413	23	Katni	
+414	23	Khargone	
+415	23	Mandla	
+416	23	Mandsaur	
+417	23	Morena	
+418	23	Narsinghpur	
+419	23	Neemuch	
+420	23	Panna	
+421	23	Raisen	
+422	23	Rajgarh	
+423	23	Ratlam	
+424	23	Rewa	रीवा
+425	23	Sagar	सागर
+426	23	Satna	
+427	23	Sehore	
+428	23	Seoni	
+429	23	Shahdol	
+430	23	Shajapur	
+431	23	Sheopur	
+432	23	Shivpuri	
+433	23	Sidhi	
+434	23	Tikamgarh	
+435	23	Ujjain	उज्जैन
+436	23	Umaria	
+437	23	Vidisha	
+638	23	Singrauli	
+639	23	Alirajpur	
+667	23	Agar Malwa	
+722	23	Niwari	
+438	24	Ahmadabad	
+439	24	Amreli	
+440	24	Anand	
+441	24	Banas Kantha	
+442	24	Bharuch	
+443	24	Bhavnagar	
+444	24	Dang	
+445	24	Dohad	
+446	24	Gandhinagar	
+447	24	Jamnagar	
+448	24	Junagadh	
+449	24	Kachchh	
+450	24	Kheda	
+451	24	Mahesana	
+452	24	Narmada	
+453	24	Navsari	
+454	24	Panch Mahals	
+455	24	Patan	
+456	24	Porbandar	
+457	24	Rajkot	राजकोट
+458	24	Sabar Kantha	
+459	24	Surat	सूरत
+460	24	Surendranagar	
+461	24	Vadodara	वडोदरा
+462	24	Valsad	
+641	24	Tapi	
+668	24	Chhotaudepur	
+669	24	Mahisagar	
+672	24	Arvalli	
+673	24	Morbi	
+674	24	Devbhumi Dwarka	
+675	24	Gir Somnath	
+676	24	Botad	
+466	27	Ahmednagar	
+467	27	Akola	
+468	27	Amravati	
+469	27	Aurangabad	
+470	27	Beed	
+471	27	Bhandara	
+472	27	Buldhana	
+473	27	Chandrapur	
+474	27	Dhule	
+475	27	Gadchiroli	
+476	27	Gondia	
+477	27	Hingoli	
+478	27	Jalgaon	
+479	27	Jalna	
+480	27	Kolhapur	
+481	27	Latur	
+482	27	Mumbai	मुंबई
+483	27	Mumbai Suburban	
+484	27	Nagpur	नागपुर
+485	27	Nanded	
+486	27	Nandurbar	
+487	27	Nashik	नाशिक
+488	27	Osmanabad	
+489	27	Parbhani	
+490	27	Pune	पुणे
+491	27	Raigad	
+492	27	Ratnagiri	
+493	27	Sangli	
+494	27	Satara	
+495	27	Sindhudurg	
+496	27	Solapur	
+497	27	Thane	ठाणे
+498	27	Wardha	
+499	27	Washim	
+500	27	Yavatmal	
+665	27	Palghar	
+502	28	Anantapur	
+503	28	Chittoor	
+504	28	Y.s.r.	
+505	28	East Godavari	
+506	28	Guntur	
+510	28	Krishna	
+511	28	Kurnool	
+515	28	Spsr Nellore	
+517	28	Prakasam	
+519	28	Srikakulam	
+520	28	Visakhapatanam	
+521	28	Vizianagaram	
+523	28	West Godavari	
+743	28	Parvathipuram Manyam	
+744	28	Anakapalli	
+745	28	Alluri Sitharama Raju	
+746	28	Kakinada	
+747	28	Konaseema	
+748	28	Eluru	
+749	28	Ntr	
+750	28	Bapatla	
+751	28	Palnadu	
+752	28	Tirupati	
+753	28	Annamayya	
+754	28	Sri Sathya Sai	
+755	28	Nandyal	
+524	29	Bagalkote	
+525	29	Bengaluru Urban	बेंगलुरु
+526	29	Bengaluru Rural	
+527	29	Belagavi	
+528	29	Ballari	
+529	29	Bidar	
+530	29	Vijayapura	
+531	29	Chamarajanagara	
+532	29	Chikkamagaluru	
+533	29	Chitradurga	
+534	29	Dakshina Kannada	
+535	29	Davangere	
+536	29	Dharwad	
+537	29	Gadag	
+538	29	Kalaburagi	
+539	29	Hassan	
+540	29	Haveri	
+541	29	Kodagu	
+542	29	Kolar	
+543	29	Koppal	
+544	29	Mandya	
+545	29	Mysuru	मैसूरु
+546	29	Raichur	
+547	29	Shivamogga	
+548	29	Tumakuru	
+549	29	Udupi	
+550	29	Uttara Kannada	
+630	29	Chikkaballapura	
+631	29	Ramanagara	
+635	29	Yadgir	
+738	29	Vijayanagar	
+551	30	North Goa	
+552	30	South Goa	
+553	31	Lakshadweep District	
+554	32	Alappuzha	
+555	32	Ernakulam	एर्नाकुलम
+556	32	Idukki	
+557	32	Kannur	
+558	32	Kasaragod	
+559	32	Kollam	
+560	32	Kottayam	
+561	32	Kozhikode	
+562	32	Malappuram	
+563	32	Palakkad	
+564	32	Pathanamthitta	
+565	32	Thiruvananthapuram	तिरुवनंतपुरम
+566	32	Thrissur	
+567	32	Wayanad	
+568	33	Chennai	चेन्नई
+569	33	Coimbatore	कोयंबटूर
+570	33	Cuddalore	
+571	33	Dharmapuri	
+572	33	Dindigul	
+573	33	Erode	
+574	33	Kanchipuram	
+575	33	Kanniyakumari	
+576	33	Karur	
+577	33	Krishnagiri	
+578	33	Madurai	मदुरै
+579	33	Nagapattinam	
+580	33	Namakkal	
+581	33	Perambalur	
+582	33	Pudukkottai	
+583	33	Ramanathapuram	
+584	33	Salem	
+585	33	Sivaganga	
+586	33	Thanjavur	
+587	33	The Nilgiris	
+588	33	Theni	
+589	33	Thiruvallur	
+590	33	Thiruvarur	
+591	33	Tiruchirappalli	
+592	33	Tirunelveli	
+593	33	Tiruvannamalai	
+594	33	Tuticorin	
+595	33	Vellore	
+596	33	Villupuram	
+597	33	Virudhunagar	
+610	33	Ariyalur	
+634	33	Tiruppur	
+729	33	Kallakurichi	
+730	33	Chengalpattu	
+731	33	Ranipet	
+732	33	Tirupathur	
+733	33	Tenkasi	
+735	33	Mayiladuthurai	
+598	34	Karaikal	
+599	34	Mahe	
+600	34	Pondicherry	
+601	34	Yanam	
+602	35	South Andamans	
+603	35	Nicobars	
+632	35	North and Middle Andaman	
+501	36	Adilabad	
+507	36	Hyderabad	हैदराबाद
+508	36	Karimnagar	
+509	36	Khammam	
+512	36	Mahabubnagar	
+513	36	Medak	
+514	36	Nalgonda	
+516	36	Nizamabad	
+518	36	Ranga Reddy	
+522	36	Warangal	वारंगल
+680	36	Nirmal	
+681	36	Jagitial	
+682	36	Peddapalli	
+683	36	Rajanna Sircilla	
+684	36	Mancherial	
+685	36	Kamareddy	
+686	36	Hanumakonda	
+687	36	Jayashankar Bhupalapally	
+688	36	Mahabubabad	
+689	36	Jangoan	
+690	36	Bhadradri Kothagudem	
+691	36	Sangareddy	
+692	36	Siddipet	
+693	36	Wanaparthy	
+694	36	Nagarkurnool	
+695	36	Jogulamba Gadwal	
+696	36	Suryapet	
+697	36	Yadadri Bhuvanagiri	
+698	36	Vikarabad	
+699	36	Kumuram Bheem Asifabad	
+700	36	Medchal Malkajgiri	
+720	36	Mulugu	
+721	36	Narayanpet	
+006	37	Kargil	
+009	37	Leh Ladakh	
+463	38	Daman	
+464	38	Diu	
+465	38	Dadra and Nagar Haveli	

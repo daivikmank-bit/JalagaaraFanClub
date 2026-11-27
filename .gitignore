@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.DS_Store
+out/
+out_*/
+my_output*/
+# never commit practice/hidden data or anything derived from it
+dev/
+*truth*.json
+registry.csv
+known_facts.jsonl

@@ -1,0 +1,116 @@
+{
+  "policy_snapshot": {
+    "age_lattice": [
+      0,
+      5,
+      10,
+      18,
+      30,
+      40,
+      50,
+      60,
+      70,
+      85
+    ],
+    "top_band": "85+",
+    "dob_mode": "suppress",
+    "location_keep": "district",
+    "shift_range_days": [
+      30,
+      365
+    ],
+    "k_target": 20,
+    "k_dx": 3,
+    "max_qi_kinds": 6,
+    "layer_b": true,
+    "readback": true,
+    "kdf_version": "kavachmed/v5",
+    "pbkdf2_iters": 600000,
+    "psn_chars": 8,
+    "min_secret_bytes": 1
+  },
+  "lexicon_count": 0,
+  "redteam_raw": {
+    "patients_evaluated": 48,
+    "records_extracted": 822,
+    "A1_direct_exposure": 1.0,
+    "A3_record_linkage": 0.6867,
+    "A4_profile_reid": 1.0,
+    "A5_targeted_success": 1.0,
+    "A5_global_shift_recovered": 0,
+    "A5_decoy_false_positives": 0
+  },
+  "redteam_sanitized": {
+    "patients_evaluated": 48,
+    "records_extracted": 821,
+    "A1_direct_exposure": 0.0,
+    "A3_record_linkage": 0.0076,
+    "A4_profile_reid": 0.0,
+    "A5_targeted_success": 0.0,
+    "A5_global_shift_recovered": 0,
+    "A5_decoy_false_positives": 0
+  },
+  "uniqueness_curve": [
+    {
+      "attributes": "1: sex",
+      "unique_share": 0.0,
+      "k_lt_5_share": 0.0
+    },
+    {
+      "attributes": "2: sex + age_10yr",
+      "unique_share": 0.0,
+      "k_lt_5_share": 0.0333
+    },
+    {
+      "attributes": "3: sex + age_10yr + district",
+      "unique_share": 0.2083,
+      "k_lt_5_share": 0.8208
+    },
+    {
+      "attributes": "4: sex + age_10yr + district + tehsil",
+      "unique_share": 0.4958,
+      "k_lt_5_share": 1.0
+    },
+    {
+      "attributes": "5: sex + age_10yr + district + tehsil + village",
+      "unique_share": 0.6917,
+      "k_lt_5_share": 1.0
+    },
+    {
+      "attributes": "6: sex + age_exact + district + pin",
+      "unique_share": 0.9583,
+      "k_lt_5_share": 1.0
+    }
+  ],
+  "lgd_match_rate": 1.0,
+  "layer_b_overflag_rate": 0.1818,
+  "pipeline_counts": {
+    "files_total": 200,
+    "files_sanitized": 194,
+    "files_quarantined": 6,
+    "records_processed": 823,
+    "identifiers_detected": 26702,
+    "records_linked": 0,
+    "records_generalized": 19,
+    "records_suppressed": 0,
+    "records_quarantined": 0
+  },
+  "timing_s": 2.48,
+  "peak_rss_mb": 36.2,
+  "check_dev": {
+    "raw_exit": 0,
+    "leaked_count": 0,
+    "total_entities": 3230,
+    "leak_pct": 0.0,
+    "by_language": "latin 0.0%, deva 0.0%, hinglish 0.0%",
+    "canary_hits": 0,
+    "canary_total": 4,
+    "medical_kept": 4817,
+    "medical_total": 4855,
+    "medical_kept_pct": 99.2,
+    "link_precision": 1.0,
+    "link_recall": 0.89,
+    "link_f05": 0.98,
+    "raw_copies": 0
+  }
+}
