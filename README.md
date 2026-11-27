@@ -92,9 +92,12 @@ For compliance and security details, see [docs/compliance.md](docs/compliance.md
 
 ---
 
-## 6. Measured Results & Remaining Team Dependencies
+## 6. Practice results
 
-- **Contract & Determinism (200-file practice corpus):** `CONTRACT OK` (194 sanitized, 6 quarantined, 823 public records, 19/19 ABDM FHIR R4 bundles valid); byte-identical `sanitized/` and `records.jsonl` on repeat runs with the same `RAKSHA_SECRET`; unlinkable outputs under a different secret; `SELF AUDIT OK`.
-- **De-Identification & Red-Team Exposure (`check_dev.py` & `tools/redteam`):** `0/3,230` (0.0%) personal-data pieces leaked across Latin/Devanagari/Hinglish and all hidden channels, `0/4` planted canaries leaked, `1,016/4,855` (20.9%) medical values kept (with Owner B `detect`/`shield` and Owner C `linkage`/`residual_a` still at Phase 1 baseline/stubs), and simulated adversary exposure reduced from raw `A1=1.000, A3=0.687, A4=1.000, A5=1.000` to sanitized `A1=0.000, A3=0.008, A4=0.000, A5=0.071, A6_inv=0.000` (`very_small_risk`).
-- **Remaining Owner B/C Integration:** Replacing Owner B's Phase 1 fail-closed `detect` stub (for higher non-FHIR medical utility retention and custom header/key sensitivity) and Owner C's `linkage` / `residual_a` stubs (for cross-file patient pseudonyms `PSN-XXXXXXXX` and linkage F0.5).
-- **Scale Memory:** Full 20× Linux Python 3.12 RSS measurement after final B/C/D integration remains to be recorded.
+The integrated pipeline processed the 200-file practice corpus, sanitized 195 files, quarantined five, and released 824 records. The kit validator reported `CONTRACT OK`. Repeated offline checker runs confirmed same-secret determinism and different-secret output variation.
+
+The practice scorer found zero of 3,230 personal-data items, zero of four canaries, and zero raw copies. It counted 4,817 of 4,855 medical values retained (99.2%). Linking precision was 1.00, recall 0.89, and F0.5 0.98.
+
+Use the original kit input bytes when reproducing these figures. The scorer uses SHA-256 to find renamed outputs. A checkout that converts LF to CRLF can give incorrect filename-leak and linking scores. For a Git-tracked kit, extract the practice directory with `git archive` to preserve the recorded bytes.
+
+JPEG and PDF inputs are quarantined by content. One synthetic 60,000-record visits JSON used 1,075.2 MiB peak RSS. The 200-file practice run used 39.8 MiB.

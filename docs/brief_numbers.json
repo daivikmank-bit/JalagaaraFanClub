@@ -29,7 +29,7 @@
     "psn_chars": 8,
     "min_secret_bytes": 1
   },
-  "lexicon_count": 0,
+  "lexicon_count": 12,
   "redteam_raw": {
     "patients_evaluated": 48,
     "records_extracted": 822,
@@ -86,17 +86,17 @@
   "layer_b_overflag_rate": 0.1818,
   "pipeline_counts": {
     "files_total": 200,
-    "files_sanitized": 194,
-    "files_quarantined": 6,
-    "records_processed": 823,
-    "identifiers_detected": 26702,
-    "records_linked": 0,
-    "records_generalized": 19,
+    "files_sanitized": 195,
+    "files_quarantined": 5,
+    "records_processed": 824,
+    "identifiers_detected": 6015,
+    "records_linked": 744,
+    "records_generalized": 772,
     "records_suppressed": 0,
     "records_quarantined": 0
   },
-  "timing_s": 2.48,
-  "peak_rss_mb": 36.2,
+  "timing_s": 7.66,
+  "peak_rss_mb": 39.8,
   "check_dev": {
     "raw_exit": 0,
     "leaked_count": 0,

@@ -26,6 +26,36 @@ def _tree_bytes(root: Path) -> dict[str, bytes]:
     }
 
 
+def test_cli_quarantines_images_and_pdfs_by_content(tmp_path: Path) -> None:
+    fixtures = Path(__file__).resolve().parents[1] / "fixtures" / "quarantine"
+    inp = tmp_path / "input"
+    inp.mkdir()
+    for source, name in (
+        ("sample.jpg", "photo.jpg"),
+        ("scan.pdf", "scan.pdf"),
+        ("text.pdf", "note.txt"),
+    ):
+        (inp / name).write_bytes((fixtures / source).read_bytes())
+
+    out = tmp_path / "output"
+    subprocess.run(
+        [sys.executable, "main.py", "--input", str(inp), "--output", str(out)],
+        env=dict(os.environ, RAKSHA_SECRET="practice"),
+        check=True,
+    )
+
+    report = json.loads((out / "report.json").read_bytes())
+    assert Counter(row["input_sha256"] for row in report["files"]) == Counter(
+        _input_hashes(inp).values()
+    )
+    for row in report["files"]:
+        assert row["status"] == "quarantined"
+        assert row["reason"] == "unsupported_format"
+        assert row["output"] is None
+    assert not _tree_bytes(out / "sanitized")
+    assert (out / "records.jsonl").read_bytes() == b""
+
+
 def test_cli_determinism_accounting_and_no_internal_locs(tmp_path: Path) -> None:
     inp = tmp_path / "inp"
     inp.mkdir()
@@ -46,6 +76,7 @@ def test_cli_determinism_accounting_and_no_internal_locs(tmp_path: Path) -> None
         proc = subprocess.run(
             [sys.executable, "main.py", "--input", str(inp), "--output", str(out)],
             env=env,
+            check=False,
             capture_output=True,
             text=True,
         )

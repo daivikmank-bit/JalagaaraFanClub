@@ -16,11 +16,11 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Courier >>
 endobj
 6 0 obj
-<< /Length 3605 >>
+<< /Length 3606 >>
 stream
 0.15 0.35 0.55 RG 1.2 w 42 798 m 553 798 l S
 0.7 0.7 0.7 RG 0.5 w 42 38 m 553 38 l S
-BT /F1 9 Tf 0.4 0.4 0.4 rg 42 24 Td (KavachMed v5 - Track 3 Secret Wards - Page 1 of 2) Tj ET
+BT /F1 10 Tf 0.4 0.4 0.4 rg 42 24 Td (KavachMed v5 - Track 3 Secret Wards - Page 1 of 2) Tj ET
 BT /F2 15.0 Tf 0.08 0.22 0.42 rg 42 810.00 Td (KavachMed v5: Offline, Deterministic Clinical Privacy Firewall) Tj ET
 BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 789.30 Td (Track 3: Secret Wards | Language: Python | Zero LLMs | Plan D Privacy, FHIR & Gate) Tj ET
 BT /F2 11.5 Tf 0.08 0.22 0.42 rg 42 772.50 Td (1. Overview & Core Thesis) Tj ET
@@ -53,41 +53,43 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
 endobj
 8 0 obj
-<< /Length 3909 >>
+<< /Length 4119 >>
 stream
 0.15 0.35 0.55 RG 1.2 w 42 798 m 553 798 l S
 0.7 0.7 0.7 RG 0.5 w 42 38 m 553 38 l S
-BT /F1 9 Tf 0.4 0.4 0.4 rg 42 24 Td (KavachMed v5 - Track 3 Secret Wards - Page 2 of 2) Tj ET
+BT /F1 10 Tf 0.4 0.4 0.4 rg 42 24 Td (KavachMed v5 - Track 3 Secret Wards - Page 2 of 2) Tj ET
 BT /F2 14.0 Tf 0.08 0.22 0.42 rg 42 810.00 Td (Measured Privacy-Utility Trade-Off, Security & Limitations) Tj ET
-BT /F2 11.5 Tf 0.08 0.22 0.42 rg 42 786.68 Td (5. Measured Evaluation & Red-Team Results \(from brief_numbers.py\)) Tj ET
-BT /F2 10.0 Tf 0.1 0.1 0.1 rg 42 770.81 Td (Metric                               Raw / Baseline       KavachMed Output) Tj ET
-BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 758.01 Td (A1 Direct Exposure                   100.0%                 0.0%) Tj ET
-BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 745.21 Td (A3 Record Linkage Mean Prob           68.7%                 0.8%) Tj ET
-BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 732.41 Td (A4 Profile Re-Identification \(>=0.5\) 100.0%                 0.0%) Tj ET
-BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 719.61 Td (A5 Targeted Attack Success           100.0%                 0.0%) Tj ET
-BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 706.81 Td (A5 Decoy False Positives                 0                    0) Tj ET
-BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 694.01 Td (check_dev Leaks / Canaries / Raw     --                   0.0% / 0/4 / 0) Tj ET
-BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 681.21 Td (Medical Values Kept / FHIR Valid     --                   99.2% / 19 of 19) Tj ET
-BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 668.41 Td (Runtime / Peak RSS \(dev 200 files\)   --                   2.48 s / 36.2 MB) Tj ET
-BT /F2 11.5 Tf 0.08 0.22 0.42 rg 42 651.61 Td (6. Attribute-Budget Curve \(Uniqueness vs Released QIs on Registry\)) Tj ET
-BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 635.74 Td (  1: sex                                         uniq=  0.0%  k<5=  0.0%) Tj ET
-BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 622.94 Td (  2: sex + age_10yr                              uniq=  0.0%  k<5=  3.3%) Tj ET
-BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 610.14 Td (  3: sex + age_10yr + district                   uniq= 20.8%  k<5= 82.1%) Tj ET
-BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 597.34 Td (  4: sex + age_10yr + district + tehsil          uniq= 49.6%  k<5=100.0%) Tj ET
-BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 584.54 Td (  5: sex + age_10yr + district + tehsil + village uniq= 69.2%  k<5=100.0%) Tj ET
-BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 571.74 Td (  6: sex + age_exact + district + pin            uniq= 95.8%  k<5=100.0%) Tj ET
-BT /F2 11.5 Tf 0.08 0.22 0.42 rg 42 554.94 Td (7. Security Design & Regulatory Posture) Tj ET
-BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 539.07 Td (- Key Derivation: PBKDF2-HMAC-SHA256 \(600,000 iters\) -> RFC 5869 HKDF-SHA256) Tj ET
-BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 526.27 Td (  with length-prefixed info \(kavachmed/v5\) and 8-char \(40-bit\) Crockford PSNs.) Tj ET
-BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 513.47 Td (- Fail-Closed & Zero Vault: Missing/blank RAKSHA_SECRET exits E_SECRET before reading) Tj ET
-BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 500.67 Td (  input; no Aadhaar or linkage table persisted; counts-only logs; RLIMIT_CORE=0.) Tj ET
-BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 487.87 Td (- ABDM Terminology: Output is de-identified \(keyed pseudonym\), not irreversibly) Tj ET
-BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 475.07 Td (  anonymous. Safe Harbor deviations \(district, shifted dates, Q12 floor\) are in compliance.md.) Tj ET
-BT /F2 11.5 Tf 0.08 0.22 0.42 rg 42 458.27 Td (8. Known Limitations) Tj ET
-BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 442.40 Td (- Layer B B1 over-flags ~18.2% of clean clinical tokens without full clinical Shield.) Tj ET
-BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 429.60 Td (- Name tokens matching common English/Hindi words outside gazetteer N stay in safe set.) Tj ET
-BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 416.80 Td (- os.environ.pop does not scrub /proc/self/environ \(mitigated by non-dumpable process\).) Tj ET
-BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 404.00 Td (- Binary PDFs/images are quarantined rather than OCR-processed; synthetic red team != real.) Tj ET
+BT /F2 11.5 Tf 0.08 0.22 0.42 rg 42 786.68 Td (5. Practice Evaluation) Tj ET
+BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 770.81 Td (A1-A5 summarize the recorded Owner D experiment in docs/d_experiments.json.) Tj ET
+BT /F2 10.0 Tf 0.1 0.1 0.1 rg 42 758.01 Td (Metric                               Raw / Baseline       KavachMed Output) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 745.21 Td (A1 Direct Exposure                   100.0%                 0.0%) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 732.41 Td (A3 Record Linkage Mean Prob           68.7%                 0.8%) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 719.61 Td (A4 Profile Re-Identification \(>=0.5\) 100.0%                 0.0%) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 706.81 Td (A5 Targeted Attack Success           100.0%                 0.0%) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 694.01 Td (A5 Decoy False Positives                 0                    0) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 681.21 Td (check_dev Leaks / Canaries / Raw     --                   0.0% / 0/4 / 0) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 668.41 Td (Linking precision / recall / F0.5    --                   1.0 / 0.89 / 0.98) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 655.61 Td (Medical Values Kept / FHIR Valid     --                   99.2% / 19 of 19) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 642.81 Td (Runtime / Peak RSS \(dev 200 files\)   --                   7.66 s / 39.8 MB) Tj ET
+BT /F2 11.5 Tf 0.08 0.22 0.42 rg 42 626.01 Td (6. Attribute-Budget Curve \(Uniqueness vs Released QIs on Registry\)) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 610.14 Td (  1: sex                                         uniq=  0.0%  k<5=  0.0%) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 597.34 Td (  2: sex + age_10yr                              uniq=  0.0%  k<5=  3.3%) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 584.54 Td (  3: sex + age_10yr + district                   uniq= 20.8%  k<5= 82.1%) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 571.74 Td (  4: sex + age_10yr + district + tehsil          uniq= 49.6%  k<5=100.0%) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 558.94 Td (  5: sex + age_10yr + district + tehsil + village uniq= 69.2%  k<5=100.0%) Tj ET
+BT /F3 10.0 Tf 0.1 0.1 0.1 rg 42 546.14 Td (  6: sex + age_exact + district + pin            uniq= 95.8%  k<5=100.0%) Tj ET
+BT /F2 11.5 Tf 0.08 0.22 0.42 rg 42 529.34 Td (7. Security Design & Regulatory Posture) Tj ET
+BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 513.47 Td (- Key Derivation: PBKDF2-HMAC-SHA256 \(600,000 iters\) -> RFC 5869 HKDF-SHA256) Tj ET
+BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 500.67 Td (  with length-prefixed info \(kavachmed/v5\) and 8-char \(40-bit\) Crockford PSNs.) Tj ET
+BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 487.87 Td (- Fail-Closed & Zero Vault: Missing/blank RAKSHA_SECRET exits E_SECRET before reading) Tj ET
+BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 475.07 Td (  input; no Aadhaar or linkage table persisted; counts-only logs; RLIMIT_CORE=0.) Tj ET
+BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 462.27 Td (- ABDM Terminology: Output is de-identified \(keyed pseudonym\), not irreversibly) Tj ET
+BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 449.47 Td (  anonymous. Safe Harbor deviations \(district, shifted dates, Q12 floor\) are in compliance.md.) Tj ET
+BT /F2 11.5 Tf 0.08 0.22 0.42 rg 42 432.67 Td (8. Known Limitations) Tj ET
+BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 416.80 Td (- Layer B B1 over-flags ~18.2% of clean clinical tokens without full clinical Shield.) Tj ET
+BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 404.00 Td (- Name tokens matching common English/Hindi words outside gazetteer N stay in safe set.) Tj ET
+BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 391.20 Td (- os.environ.pop does not scrub /proc/self/environ \(mitigated by non-dumpable process\).) Tj ET
+BT /F1 10.0 Tf 0.1 0.1 0.1 rg 42 378.40 Td (- Binary PDFs/images are quarantined rather than OCR-processed; synthetic red team != real.) Tj ET
 endstream
 endobj
 9 0 obj
@@ -102,11 +104,11 @@ xref
 0000000197 00000 n 
 0000000272 00000 n 
 0000000340 00000 n 
-0000003997 00000 n 
-0000004149 00000 n 
-0000008110 00000 n 
+0000003998 00000 n 
+0000004150 00000 n 
+0000008321 00000 n 
 trailer
 << /Size 10 /Root 1 0 R >>
 startxref
-8262
+8473
 %%EOF

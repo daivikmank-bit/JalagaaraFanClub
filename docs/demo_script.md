@@ -9,7 +9,7 @@
    - Point out `Raw A4 = 100.0%` dropping to `Sanitized A4 = 2.1%` (with `A1 = 0.0%`, `A5 = 7.1%`, `0` decoy false positives), plus the 6-step attribute-budget uniqueness curve.
 
 3. **0:30–0:45 · Unseen-name canary & disk-dirty fault caught live by Layer B**
-   - Run `make canary` (`tests/canary/test_canary_suite.py`) showing unseen Latin/Devanagari/lowercase names in cells, keys, headers, `source_path`, base64, FHIR `text.div`, and a memory-clean/disk-dirty writer fault all caught by `residual_b.py` on read-back with 0 survivors.
+   - Run `python -m pytest -q tests/canary/test_canary_suite.py` (`tests/canary/test_canary_suite.py`) showing unseen Latin/Devanagari/lowercase names in cells, keys, headers, `source_path`, base64, FHIR `text.div`, and a memory-clean/disk-dirty writer fault all caught by `residual_b.py` on read-back with 0 survivors.
 
 4. **0:45–1:00 · ABDM-aware FHIR & live policy-driven compliance crosswalk**
    - Show 19/19 dev FHIR bundles passing `validate_fhir_bundle` with `meta.profile` and `Composition.section.entry` UUID references intact and `Practitioner.name` preserved.

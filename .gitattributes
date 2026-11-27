@@ -1,0 +1,4 @@
+*.parquet filter=lfs diff=lfs merge=lfs -text
+*.pdf binary
+config/lexicons/**/*.txt text eol=lf
+config/lexicons/**/*.tsv text eol=lf
